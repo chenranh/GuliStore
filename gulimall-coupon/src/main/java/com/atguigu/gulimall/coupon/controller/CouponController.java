@@ -34,7 +34,7 @@ public class CouponController {
 
     @Value("${coupon.user.name}")
    private String name;
-    @Value("${user.age}")
+    @Value("${coupon.user.age}")
    private Integer age;
 
     /**
