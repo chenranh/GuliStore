@@ -14,10 +14,7 @@ import java.io.Serializable;
 
 /**
  * 品牌
- * 
- * @author leifengyang
- * @email leifengyang@gmail.com
- * @date 2019-10-01 21:08:49
+ *没有指定group的字段，不进行校验
  */
 @Data
 @TableName("pms_brand")
@@ -27,7 +24,9 @@ public class BrandEntity implements Serializable {
 	/**
 	 * 品牌id
 	 */
+	//必须为空
 	@NotNull(message = "修改必须指定品牌id",groups = {UpdateGroup.class})
+	//必须不为空
 	@Null(message = "新增不能指定id",groups = {AddGroup.class})
 	@TableId
 	private Long brandId;
@@ -57,6 +56,7 @@ public class BrandEntity implements Serializable {
 	 * 检索首字母
 	 */
 	@NotEmpty(groups={AddGroup.class})
+	//修改的时候可以为空，不为空时要符合检验规则
 	@Pattern(regexp="^[a-zA-Z]$",message = "检索首字母必须是一个字母",groups={AddGroup.class,UpdateGroup.class})
 	private String firstLetter;
 	/**

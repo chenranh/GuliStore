@@ -10,6 +10,7 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Documented
+//如果需要校验的字段是一个新的类型，Constraint可以添加多个ListValueConstraintValidator
 @Constraint(validatedBy = { ListValueConstraintValidator.class })
 @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE })
 @Retention(RUNTIME)
