@@ -20,6 +20,14 @@ spring:
             - RewritePath=/api/(?<segment>.*),/$\{segment}
 
 
+        - id: third_party_route
+          uri: lb://gulimall-third-party
+          predicates:
+            - Path=/api/thirdparty/**
+          filters:
+            - RewritePath=/api/thirdparty/(?<segment>.*),/$\{segment}
+
+
         ## 前端项目，/api,发送请求的时候都带上api前缀
         ## http://localhost:88/api/captcha.jpg   需要转换成的地址http://localhost:8080/renren-fast/captcha.jpg
 
