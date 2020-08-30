@@ -18,11 +18,11 @@ import com.atguigu.common.utils.R;
 
 
 /**
- * ?Ż?ȯ????Ʒ????
+ * 优惠券与产品关联
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 @RestController
 @RequestMapping("coupon/couponspurelation")
@@ -46,7 +46,7 @@ public class CouponSpuRelationController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-   // @RequiresPermissions("coupon:couponspurelation:info")
+    //@RequiresPermissions("coupon:couponspurelation:info")
     public R info(@PathVariable("id") Long id){
 		CouponSpuRelationEntity couponSpuRelation = couponSpuRelationService.getById(id);
 
@@ -57,7 +57,7 @@ public class CouponSpuRelationController {
      * 保存
      */
     @RequestMapping("/save")
-  //  @RequiresPermissions("coupon:couponspurelation:save")
+    //@RequiresPermissions("coupon:couponspurelation:save")
     public R save(@RequestBody CouponSpuRelationEntity couponSpuRelation){
 		couponSpuRelationService.save(couponSpuRelation);
 
@@ -68,7 +68,7 @@ public class CouponSpuRelationController {
      * 修改
      */
     @RequestMapping("/update")
-   // @RequiresPermissions("coupon:couponspurelation:update")
+    //@RequiresPermissions("coupon:couponspurelation:update")
     public R update(@RequestBody CouponSpuRelationEntity couponSpuRelation){
 		couponSpuRelationService.updateById(couponSpuRelation);
 
@@ -79,7 +79,7 @@ public class CouponSpuRelationController {
      * 删除
      */
     @RequestMapping("/delete")
-   // @RequiresPermissions("coupon:couponspurelation:delete")
+    //@RequiresPermissions("coupon:couponspurelation:delete")
     public R delete(@RequestBody Long[] ids){
 		couponSpuRelationService.removeByIds(Arrays.asList(ids));
 

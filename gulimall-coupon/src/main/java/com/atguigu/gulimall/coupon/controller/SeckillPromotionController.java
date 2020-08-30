@@ -18,11 +18,11 @@ import com.atguigu.common.utils.R;
 
 
 /**
- * ??ɱ?
+ * 秒杀活动
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 @RestController
 @RequestMapping("coupon/seckillpromotion")
@@ -46,7 +46,7 @@ public class SeckillPromotionController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-   // @RequiresPermissions("coupon:seckillpromotion:info")
+    //@RequiresPermissions("coupon:seckillpromotion:info")
     public R info(@PathVariable("id") Long id){
 		SeckillPromotionEntity seckillPromotion = seckillPromotionService.getById(id);
 
@@ -57,7 +57,7 @@ public class SeckillPromotionController {
      * 保存
      */
     @RequestMapping("/save")
-  //  @RequiresPermissions("coupon:seckillpromotion:save")
+    //@RequiresPermissions("coupon:seckillpromotion:save")
     public R save(@RequestBody SeckillPromotionEntity seckillPromotion){
 		seckillPromotionService.save(seckillPromotion);
 
@@ -68,7 +68,7 @@ public class SeckillPromotionController {
      * 修改
      */
     @RequestMapping("/update")
-   // @RequiresPermissions("coupon:seckillpromotion:update")
+    //@RequiresPermissions("coupon:seckillpromotion:update")
     public R update(@RequestBody SeckillPromotionEntity seckillPromotion){
 		seckillPromotionService.updateById(seckillPromotion);
 
@@ -79,7 +79,7 @@ public class SeckillPromotionController {
      * 删除
      */
     @RequestMapping("/delete")
-   // @RequiresPermissions("coupon:seckillpromotion:delete")
+    //@RequiresPermissions("coupon:seckillpromotion:delete")
     public R delete(@RequestBody Long[] ids){
 		seckillPromotionService.removeByIds(Arrays.asList(ids));
 

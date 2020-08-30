@@ -8,11 +8,11 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * ??ҳ?ֲ????
+ * 首页轮播广告
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 @Data
 @TableName("sms_home_adv")
@@ -20,52 +20,52 @@ public class HomeAdvEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * 名字
 	 */
 	private String name;
 	/**
-	 * $column.comments
+	 * 图片地址
 	 */
 	private String pic;
 	/**
-	 * $column.comments
+	 * 开始时间
 	 */
 	private Date startTime;
 	/**
-	 * $column.comments
+	 * 结束时间
 	 */
 	private Date endTime;
 	/**
-	 * $column.comments
+	 * 状态
 	 */
 	private Integer status;
 	/**
-	 * $column.comments
+	 * 点击数
 	 */
 	private Integer clickCount;
 	/**
-	 * $column.comments
+	 * 广告详情连接地址
 	 */
 	private String url;
 	/**
-	 * $column.comments
+	 * 备注
 	 */
 	private String note;
 	/**
-	 * $column.comments
+	 * 排序
 	 */
 	private Integer sort;
 	/**
-	 * $column.comments
+	 * 发布者
 	 */
 	private Long publisherId;
 	/**
-	 * $column.comments
+	 * 审核者
 	 */
 	private Long authId;
 

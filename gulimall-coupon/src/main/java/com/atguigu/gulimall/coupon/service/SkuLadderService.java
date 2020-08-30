@@ -7,11 +7,11 @@ import com.atguigu.gulimall.coupon.entity.SkuLadderEntity;
 import java.util.Map;
 
 /**
- * ??Ʒ???ݼ۸
+ * 商品阶梯价格
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 public interface SkuLadderService extends IService<SkuLadderEntity> {
 

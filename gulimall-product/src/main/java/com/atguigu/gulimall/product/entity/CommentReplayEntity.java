@@ -8,11 +8,11 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * ??Ʒ???ۻظ???ϵ
+ * 商品评价回复关系
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 16:18:07
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-01 21:08:48
  */
 @Data
 @TableName("pms_comment_replay")
@@ -20,16 +20,16 @@ public class CommentReplayEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * 评论id
 	 */
 	private Long commentId;
 	/**
-	 * $column.comments
+	 * 回复id
 	 */
 	private Long replyId;
 

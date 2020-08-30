@@ -7,11 +7,11 @@ import com.atguigu.gulimall.coupon.entity.HomeSubjectEntity;
 import java.util.Map;
 
 /**
- * ??ҳר???�jd??ҳ?????ܶ?ר?⣬ÿ??ר???????µ?ҳ?棬չʾר????Ʒ??Ϣ??
+ * 首页专题表【jd首页下面很多专题，每个专题链接新的页面，展示专题商品信息】
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 public interface HomeSubjectService extends IService<HomeSubjectEntity> {
 

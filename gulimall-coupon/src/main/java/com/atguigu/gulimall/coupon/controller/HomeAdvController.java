@@ -18,11 +18,11 @@ import com.atguigu.common.utils.R;
 
 
 /**
- * ??ҳ?ֲ????
+ * 首页轮播广告
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 @RestController
 @RequestMapping("coupon/homeadv")
@@ -46,7 +46,7 @@ public class HomeAdvController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-   // @RequiresPermissions("coupon:homeadv:info")
+    //@RequiresPermissions("coupon:homeadv:info")
     public R info(@PathVariable("id") Long id){
 		HomeAdvEntity homeAdv = homeAdvService.getById(id);
 
@@ -57,7 +57,7 @@ public class HomeAdvController {
      * 保存
      */
     @RequestMapping("/save")
-  //  @RequiresPermissions("coupon:homeadv:save")
+    //@RequiresPermissions("coupon:homeadv:save")
     public R save(@RequestBody HomeAdvEntity homeAdv){
 		homeAdvService.save(homeAdv);
 
@@ -68,7 +68,7 @@ public class HomeAdvController {
      * 修改
      */
     @RequestMapping("/update")
-   // @RequiresPermissions("coupon:homeadv:update")
+    //@RequiresPermissions("coupon:homeadv:update")
     public R update(@RequestBody HomeAdvEntity homeAdv){
 		homeAdvService.updateById(homeAdv);
 
@@ -79,7 +79,7 @@ public class HomeAdvController {
      * 删除
      */
     @RequestMapping("/delete")
-   // @RequiresPermissions("coupon:homeadv:delete")
+    //@RequiresPermissions("coupon:homeadv:delete")
     public R delete(@RequestBody Long[] ids){
 		homeAdvService.removeByIds(Arrays.asList(ids));
 

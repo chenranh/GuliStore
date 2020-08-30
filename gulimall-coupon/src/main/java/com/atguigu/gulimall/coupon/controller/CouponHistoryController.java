@@ -18,11 +18,11 @@ import com.atguigu.common.utils.R;
 
 
 /**
- * ?Ż?ȯ??ȡ??ʷ??¼
+ * 优惠券领取历史记录
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 @RestController
 @RequestMapping("coupon/couponhistory")
@@ -46,7 +46,7 @@ public class CouponHistoryController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-   // @RequiresPermissions("coupon:couponhistory:info")
+    //@RequiresPermissions("coupon:couponhistory:info")
     public R info(@PathVariable("id") Long id){
 		CouponHistoryEntity couponHistory = couponHistoryService.getById(id);
 
@@ -57,7 +57,7 @@ public class CouponHistoryController {
      * 保存
      */
     @RequestMapping("/save")
-  //  @RequiresPermissions("coupon:couponhistory:save")
+    //@RequiresPermissions("coupon:couponhistory:save")
     public R save(@RequestBody CouponHistoryEntity couponHistory){
 		couponHistoryService.save(couponHistory);
 
@@ -68,7 +68,7 @@ public class CouponHistoryController {
      * 修改
      */
     @RequestMapping("/update")
-   // @RequiresPermissions("coupon:couponhistory:update")
+    //@RequiresPermissions("coupon:couponhistory:update")
     public R update(@RequestBody CouponHistoryEntity couponHistory){
 		couponHistoryService.updateById(couponHistory);
 
@@ -79,7 +79,7 @@ public class CouponHistoryController {
      * 删除
      */
     @RequestMapping("/delete")
-   // @RequiresPermissions("coupon:couponhistory:delete")
+    //@RequiresPermissions("coupon:couponhistory:delete")
     public R delete(@RequestBody Long[] ids){
 		couponHistoryService.removeByIds(Arrays.asList(ids));
 

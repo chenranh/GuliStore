@@ -8,11 +8,11 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * ??Ʒ???
+ * 商品评价
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 16:18:07
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-01 21:08:49
  */
 @Data
 @TableName("pms_spu_comment")
@@ -20,68 +20,68 @@ public class SpuCommentEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * sku_id
 	 */
 	private Long skuId;
 	/**
-	 * $column.comments
+	 * spu_id
 	 */
 	private Long spuId;
 	/**
-	 * $column.comments
+	 * 商品名字
 	 */
 	private String spuName;
 	/**
-	 * $column.comments
+	 * 会员昵称
 	 */
 	private String memberNickName;
 	/**
-	 * $column.comments
+	 * 星级
 	 */
 	private Integer star;
 	/**
-	 * $column.comments
+	 * 会员ip
 	 */
 	private String memberIp;
 	/**
-	 * $column.comments
+	 * 创建时间
 	 */
 	private Date createTime;
 	/**
-	 * $column.comments
+	 * 显示状态[0-不显示，1-显示]
 	 */
 	private Integer showStatus;
 	/**
-	 * $column.comments
+	 * 购买时属性组合
 	 */
 	private String spuAttributes;
 	/**
-	 * $column.comments
+	 * 点赞数
 	 */
 	private Integer likesCount;
 	/**
-	 * $column.comments
+	 * 回复数
 	 */
 	private Integer replyCount;
 	/**
-	 * $column.comments
+	 * 评论图片/视频[json数据；[{type:文件类型,url:资源路径}]]
 	 */
 	private String resources;
 	/**
-	 * $column.comments
+	 * 内容
 	 */
 	private String content;
 	/**
-	 * $column.comments
+	 * 用户头像
 	 */
 	private String memberIcon;
 	/**
-	 * $column.comments
+	 * 评论类型[0 - 对商品的直接评论，1 - 对评论的回复]
 	 */
 	private Integer commentType;
 

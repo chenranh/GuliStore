@@ -8,11 +8,11 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * ??ɱ????
+ * 秒杀活动场次
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 @Data
 @TableName("sms_seckill_session")
@@ -20,28 +20,28 @@ public class SeckillSessionEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * 场次名称
 	 */
 	private String name;
 	/**
-	 * $column.comments
+	 * 每日开始时间
 	 */
 	private Date startTime;
 	/**
-	 * $column.comments
+	 * 每日结束时间
 	 */
 	private Date endTime;
 	/**
-	 * $column.comments
+	 * 启用状态
 	 */
 	private Integer status;
 	/**
-	 * $column.comments
+	 * 创建时间
 	 */
 	private Date createTime;
 

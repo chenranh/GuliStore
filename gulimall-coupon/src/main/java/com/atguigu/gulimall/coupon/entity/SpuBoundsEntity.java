@@ -9,11 +9,11 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * ??Ʒspu???????
+ * 商品spu积分设置
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 @Data
 @TableName("sms_spu_bounds")
@@ -21,24 +21,24 @@ public class SpuBoundsEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * 
 	 */
 	private Long spuId;
 	/**
-	 * $column.comments
+	 * 成长积分
 	 */
 	private BigDecimal growBounds;
 	/**
-	 * $column.comments
+	 * 购物积分
 	 */
 	private BigDecimal buyBounds;
 	/**
-	 * $column.comments
+	 * 优惠生效情况[1111（四个状态位，从右到左）;0 - 无优惠，成长积分是否赠送;1 - 无优惠，购物积分是否赠送;2 - 有优惠，成长积分是否赠送;3 - 有优惠，购物积分是否赠送【状态位0：不赠送，1：赠送】]
 	 */
 	private Integer work;
 

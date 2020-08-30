@@ -18,11 +18,11 @@ import com.atguigu.common.utils.R;
 
 
 /**
- * ר????Ʒ
+ * 专题商品
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 @RestController
 @RequestMapping("coupon/homesubjectspu")
@@ -46,7 +46,7 @@ public class HomeSubjectSpuController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-   // @RequiresPermissions("coupon:homesubjectspu:info")
+    //@RequiresPermissions("coupon:homesubjectspu:info")
     public R info(@PathVariable("id") Long id){
 		HomeSubjectSpuEntity homeSubjectSpu = homeSubjectSpuService.getById(id);
 
@@ -57,7 +57,7 @@ public class HomeSubjectSpuController {
      * 保存
      */
     @RequestMapping("/save")
-  //  @RequiresPermissions("coupon:homesubjectspu:save")
+    //@RequiresPermissions("coupon:homesubjectspu:save")
     public R save(@RequestBody HomeSubjectSpuEntity homeSubjectSpu){
 		homeSubjectSpuService.save(homeSubjectSpu);
 
@@ -68,7 +68,7 @@ public class HomeSubjectSpuController {
      * 修改
      */
     @RequestMapping("/update")
-   // @RequiresPermissions("coupon:homesubjectspu:update")
+    //@RequiresPermissions("coupon:homesubjectspu:update")
     public R update(@RequestBody HomeSubjectSpuEntity homeSubjectSpu){
 		homeSubjectSpuService.updateById(homeSubjectSpu);
 
@@ -79,7 +79,7 @@ public class HomeSubjectSpuController {
      * 删除
      */
     @RequestMapping("/delete")
-   // @RequiresPermissions("coupon:homesubjectspu:delete")
+    //@RequiresPermissions("coupon:homesubjectspu:delete")
     public R delete(@RequestBody Long[] ids){
 		homeSubjectSpuService.removeByIds(Arrays.asList(ids));
 

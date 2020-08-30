@@ -9,11 +9,11 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * ?Ż?ȯ??Ϣ
+ * 优惠券信息
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 @Data
 @TableName("sms_coupon")
@@ -21,84 +21,84 @@ public class CouponEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * 优惠卷类型[0->全场赠券；1->会员赠券；2->购物赠券；3->注册赠券]
 	 */
 	private Integer couponType;
 	/**
-	 * $column.comments
+	 * 优惠券图片
 	 */
 	private String couponImg;
 	/**
-	 * $column.comments
+	 * 优惠卷名字
 	 */
 	private String couponName;
 	/**
-	 * $column.comments
+	 * 数量
 	 */
 	private Integer num;
 	/**
-	 * $column.comments
+	 * 金额
 	 */
 	private BigDecimal amount;
 	/**
-	 * $column.comments
+	 * 每人限领张数
 	 */
 	private Integer perLimit;
 	/**
-	 * $column.comments
+	 * 使用门槛
 	 */
 	private BigDecimal minPoint;
 	/**
-	 * $column.comments
+	 * 开始时间
 	 */
 	private Date startTime;
 	/**
-	 * $column.comments
+	 * 结束时间
 	 */
 	private Date endTime;
 	/**
-	 * $column.comments
+	 * 使用类型[0->全场通用；1->指定分类；2->指定商品]
 	 */
 	private Integer useType;
 	/**
-	 * $column.comments
+	 * 备注
 	 */
 	private String note;
 	/**
-	 * $column.comments
+	 * 发行数量
 	 */
 	private Integer publishCount;
 	/**
-	 * $column.comments
+	 * 已使用数量
 	 */
 	private Integer useCount;
 	/**
-	 * $column.comments
+	 * 领取数量
 	 */
 	private Integer receiveCount;
 	/**
-	 * $column.comments
+	 * 可以领取的开始日期
 	 */
 	private Date enableStartTime;
 	/**
-	 * $column.comments
+	 * 可以领取的结束日期
 	 */
 	private Date enableEndTime;
 	/**
-	 * $column.comments
+	 * 优惠码
 	 */
 	private String code;
 	/**
-	 * $column.comments
+	 * 可以领取的会员等级[0->不限等级，其他-对应等级]
 	 */
 	private Integer memberLevel;
 	/**
-	 * $column.comments
+	 * 发布状态[0-未发布，1-已发布]
 	 */
 	private Integer publish;
 

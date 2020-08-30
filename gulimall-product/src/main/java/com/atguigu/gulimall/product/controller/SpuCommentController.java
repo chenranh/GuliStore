@@ -3,6 +3,7 @@ package com.atguigu.gulimall.product.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.atguigu.common.utils.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,16 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.atguigu.gulimall.product.entity.SpuCommentEntity;
 import com.atguigu.gulimall.product.service.SpuCommentService;
 import com.atguigu.common.utils.PageUtils;
-import com.atguigu.common.utils.R;
-
 
 
 /**
- * ??Ʒ???
+ * 商品评价
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 16:18:07
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-01 22:50:32
  */
 @RestController
 @RequestMapping("product/spucomment")
@@ -46,7 +45,7 @@ public class SpuCommentController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-   // @RequiresPermissions("product:spucomment:info")
+    //@RequiresPermissions("product:spucomment:info")
     public R info(@PathVariable("id") Long id){
 		SpuCommentEntity spuComment = spuCommentService.getById(id);
 
@@ -57,7 +56,7 @@ public class SpuCommentController {
      * 保存
      */
     @RequestMapping("/save")
-  //  @RequiresPermissions("product:spucomment:save")
+    //@RequiresPermissions("product:spucomment:save")
     public R save(@RequestBody SpuCommentEntity spuComment){
 		spuCommentService.save(spuComment);
 
@@ -68,7 +67,7 @@ public class SpuCommentController {
      * 修改
      */
     @RequestMapping("/update")
-   // @RequiresPermissions("product:spucomment:update")
+    //@RequiresPermissions("product:spucomment:update")
     public R update(@RequestBody SpuCommentEntity spuComment){
 		spuCommentService.updateById(spuComment);
 
@@ -79,7 +78,7 @@ public class SpuCommentController {
      * 删除
      */
     @RequestMapping("/delete")
-   // @RequiresPermissions("product:spucomment:delete")
+    //@RequiresPermissions("product:spucomment:delete")
     public R delete(@RequestBody Long[] ids){
 		spuCommentService.removeByIds(Arrays.asList(ids));
 

@@ -3,6 +3,7 @@ package com.atguigu.gulimall.member.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.feign.CouponFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.atguigu.gulimall.member.entity.MemberEntity;
 import com.atguigu.gulimall.member.service.MemberService;
 import com.atguigu.common.utils.PageUtils;
-import com.atguigu.common.utils.R;
 
 
 /**

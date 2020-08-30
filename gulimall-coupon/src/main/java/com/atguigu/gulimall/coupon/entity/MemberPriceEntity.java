@@ -9,11 +9,11 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * ??Ʒ??Ա?۸
+ * 商品会员价格
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 @Data
 @TableName("sms_member_price")
@@ -21,28 +21,28 @@ public class MemberPriceEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * sku_id
 	 */
 	private Long skuId;
 	/**
-	 * $column.comments
+	 * 会员等级id
 	 */
 	private Long memberLevelId;
 	/**
-	 * $column.comments
+	 * 会员等级名
 	 */
 	private String memberLevelName;
 	/**
-	 * $column.comments
+	 * 会员对应价格
 	 */
 	private BigDecimal memberPrice;
 	/**
-	 * $column.comments
+	 * 可否叠加其他优惠[0-不可叠加优惠，1-可叠加]
 	 */
 	private Integer addOther;
 

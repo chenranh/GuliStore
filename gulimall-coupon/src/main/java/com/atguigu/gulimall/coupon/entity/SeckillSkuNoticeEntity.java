@@ -8,11 +8,11 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * ??ɱ??Ʒ֪ͨ???
+ * 秒杀商品通知订阅
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:39
  */
 @Data
 @TableName("sms_seckill_sku_notice")
@@ -20,32 +20,32 @@ public class SeckillSkuNoticeEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * member_id
 	 */
 	private Long memberId;
 	/**
-	 * $column.comments
+	 * sku_id
 	 */
 	private Long skuId;
 	/**
-	 * $column.comments
+	 * 活动场次id
 	 */
 	private Long sessionId;
 	/**
-	 * $column.comments
+	 * 订阅时间
 	 */
 	private Date subcribeTime;
 	/**
-	 * $column.comments
+	 * 发送时间
 	 */
 	private Date sendTime;
 	/**
-	 * $column.comments
+	 * 通知方式[0-短信，1-邮件]
 	 */
 	private Integer noticeType;
 

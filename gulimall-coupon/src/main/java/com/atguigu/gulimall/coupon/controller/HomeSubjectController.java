@@ -18,11 +18,11 @@ import com.atguigu.common.utils.R;
 
 
 /**
- * ??ҳר???�jd??ҳ?????ܶ?ר?⣬ÿ??ר???????µ?ҳ?棬չʾר????Ʒ??Ϣ??
+ * 首页专题表【jd首页下面很多专题，每个专题链接新的页面，展示专题商品信息】
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 @RestController
 @RequestMapping("coupon/homesubject")
@@ -46,7 +46,7 @@ public class HomeSubjectController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-   // @RequiresPermissions("coupon:homesubject:info")
+    //@RequiresPermissions("coupon:homesubject:info")
     public R info(@PathVariable("id") Long id){
 		HomeSubjectEntity homeSubject = homeSubjectService.getById(id);
 
@@ -57,7 +57,7 @@ public class HomeSubjectController {
      * 保存
      */
     @RequestMapping("/save")
-  //  @RequiresPermissions("coupon:homesubject:save")
+    //@RequiresPermissions("coupon:homesubject:save")
     public R save(@RequestBody HomeSubjectEntity homeSubject){
 		homeSubjectService.save(homeSubject);
 
@@ -68,7 +68,7 @@ public class HomeSubjectController {
      * 修改
      */
     @RequestMapping("/update")
-   // @RequiresPermissions("coupon:homesubject:update")
+    //@RequiresPermissions("coupon:homesubject:update")
     public R update(@RequestBody HomeSubjectEntity homeSubject){
 		homeSubjectService.updateById(homeSubject);
 
@@ -79,7 +79,7 @@ public class HomeSubjectController {
      * 删除
      */
     @RequestMapping("/delete")
-   // @RequiresPermissions("coupon:homesubject:delete")
+    //@RequiresPermissions("coupon:homesubject:delete")
     public R delete(@RequestBody Long[] ids){
 		homeSubjectService.removeByIds(Arrays.asList(ids));
 

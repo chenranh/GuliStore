@@ -8,11 +8,11 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * ????&???Է???????
+ * 属性&属性分组关联
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 16:18:07
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-01 21:08:49
  */
 @Data
 @TableName("pms_attr_attrgroup_relation")
@@ -20,20 +20,20 @@ public class AttrAttrgroupRelationEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * 属性id
 	 */
 	private Long attrId;
 	/**
-	 * $column.comments
+	 * 属性分组id
 	 */
 	private Long attrGroupId;
 	/**
-	 * $column.comments
+	 * 属性组内排序
 	 */
 	private Integer attrSort;
 

@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.atguigu.gulimall.ware.entity.WareSkuEntity;
 import com.atguigu.gulimall.ware.service.WareSkuService;
 import com.atguigu.common.utils.PageUtils;
-import com.atguigu.common.utils.R;
-
 
 
 /**

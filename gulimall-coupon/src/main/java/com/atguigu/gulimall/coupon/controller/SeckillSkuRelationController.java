@@ -18,11 +18,11 @@ import com.atguigu.common.utils.R;
 
 
 /**
- * ??ɱ???Ʒ????
+ * 秒杀活动商品关联
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 @RestController
 @RequestMapping("coupon/seckillskurelation")
@@ -46,7 +46,7 @@ public class SeckillSkuRelationController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-   // @RequiresPermissions("coupon:seckillskurelation:info")
+    //@RequiresPermissions("coupon:seckillskurelation:info")
     public R info(@PathVariable("id") Long id){
 		SeckillSkuRelationEntity seckillSkuRelation = seckillSkuRelationService.getById(id);
 
@@ -57,7 +57,7 @@ public class SeckillSkuRelationController {
      * 保存
      */
     @RequestMapping("/save")
-  //  @RequiresPermissions("coupon:seckillskurelation:save")
+    //@RequiresPermissions("coupon:seckillskurelation:save")
     public R save(@RequestBody SeckillSkuRelationEntity seckillSkuRelation){
 		seckillSkuRelationService.save(seckillSkuRelation);
 
@@ -68,7 +68,7 @@ public class SeckillSkuRelationController {
      * 修改
      */
     @RequestMapping("/update")
-   // @RequiresPermissions("coupon:seckillskurelation:update")
+    //@RequiresPermissions("coupon:seckillskurelation:update")
     public R update(@RequestBody SeckillSkuRelationEntity seckillSkuRelation){
 		seckillSkuRelationService.updateById(seckillSkuRelation);
 
@@ -79,7 +79,7 @@ public class SeckillSkuRelationController {
      * 删除
      */
     @RequestMapping("/delete")
-   // @RequiresPermissions("coupon:seckillskurelation:delete")
+    //@RequiresPermissions("coupon:seckillskurelation:delete")
     public R delete(@RequestBody Long[] ids){
 		seckillSkuRelationService.removeByIds(Arrays.asList(ids));
 

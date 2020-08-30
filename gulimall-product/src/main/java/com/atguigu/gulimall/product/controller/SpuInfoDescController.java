@@ -3,6 +3,7 @@ package com.atguigu.gulimall.product.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.atguigu.common.utils.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,16 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.atguigu.gulimall.product.entity.SpuInfoDescEntity;
 import com.atguigu.gulimall.product.service.SpuInfoDescService;
 import com.atguigu.common.utils.PageUtils;
-import com.atguigu.common.utils.R;
-
 
 
 /**
- * spu??Ϣ???
+ * spu信息介绍
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 16:18:07
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-01 22:50:32
  */
 @RestController
 @RequestMapping("product/spuinfodesc")
@@ -46,7 +45,7 @@ public class SpuInfoDescController {
      * 信息
      */
     @RequestMapping("/info/{spuId}")
-   // @RequiresPermissions("product:spuinfodesc:info")
+    //@RequiresPermissions("product:spuinfodesc:info")
     public R info(@PathVariable("spuId") Long spuId){
 		SpuInfoDescEntity spuInfoDesc = spuInfoDescService.getById(spuId);
 
@@ -57,7 +56,7 @@ public class SpuInfoDescController {
      * 保存
      */
     @RequestMapping("/save")
-  //  @RequiresPermissions("product:spuinfodesc:save")
+    //@RequiresPermissions("product:spuinfodesc:save")
     public R save(@RequestBody SpuInfoDescEntity spuInfoDesc){
 		spuInfoDescService.save(spuInfoDesc);
 
@@ -68,7 +67,7 @@ public class SpuInfoDescController {
      * 修改
      */
     @RequestMapping("/update")
-   // @RequiresPermissions("product:spuinfodesc:update")
+    //@RequiresPermissions("product:spuinfodesc:update")
     public R update(@RequestBody SpuInfoDescEntity spuInfoDesc){
 		spuInfoDescService.updateById(spuInfoDesc);
 
@@ -79,7 +78,7 @@ public class SpuInfoDescController {
      * 删除
      */
     @RequestMapping("/delete")
-   // @RequiresPermissions("product:spuinfodesc:delete")
+    //@RequiresPermissions("product:spuinfodesc:delete")
     public R delete(@RequestBody Long[] spuIds){
 		spuInfoDescService.removeByIds(Arrays.asList(spuIds));
 

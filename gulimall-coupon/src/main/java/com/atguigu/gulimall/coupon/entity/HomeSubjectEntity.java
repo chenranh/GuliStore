@@ -8,11 +8,11 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * ??ҳר???�jd??ҳ?????ܶ?ר?⣬ÿ??ר???????µ?ҳ?棬չʾר????Ʒ??Ϣ??
+ * 首页专题表【jd首页下面很多专题，每个专题链接新的页面，展示专题商品信息】
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 @Data
 @TableName("sms_home_subject")
@@ -20,36 +20,36 @@ public class HomeSubjectEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * 专题名字
 	 */
 	private String name;
 	/**
-	 * $column.comments
+	 * 专题标题
 	 */
 	private String title;
 	/**
-	 * $column.comments
+	 * 专题副标题
 	 */
 	private String subTitle;
 	/**
-	 * $column.comments
+	 * 显示状态
 	 */
 	private Integer status;
 	/**
-	 * $column.comments
+	 * 详情连接
 	 */
 	private String url;
 	/**
-	 * $column.comments
+	 * 排序
 	 */
 	private Integer sort;
 	/**
-	 * $column.comments
+	 * 专题图片地址
 	 */
 	private String img;
 

@@ -6,66 +6,72 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
+
+
 /**
- * ??Ʒ???????
+ * 商品三级分类
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 16:18:07
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-01 21:08:48
  */
+
 @Data
 @TableName("pms_category")
 public class CategoryEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * 分类id
 	 */
 	@TableId
 	private Long catId;
 	/**
-	 * $column.comments
+	 * 分类名称
 	 */
 	private String name;
 	/**
-	 * $column.comments
+	 * 父分类id
 	 */
 	private Long parentCid;
 	/**
-	 * $column.comments
+	 * 层级
 	 */
 	private Integer catLevel;
-
 	/**
 	 * 是否显示[0-不显示，1显示]
 	 */
 	@TableLogic(value = "1",delval = "0")
 	private Integer showStatus;
 	/**
-	 * $column.comments
+	 * 排序
 	 */
 	private Integer sort;
 	/**
-	 * $column.comments
+	 * 图标地址
 	 */
 	private String icon;
 	/**
-	 * $column.comments
+	 * 计量单位
 	 */
 	private String productUnit;
 	/**
-	 * $column.comments
+	 * 商品数量
 	 */
 	private Integer productCount;
 
-	@TableField(exist = false)
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	//表示当前属性不是数据库的字段，但在项目中必须使用，
+	// 这样在使用bean的时候，mybatis-plus就会忽略这个，不会报错
+	@TableField(exist=false)
 	private List<CategoryEntity> children;
+
+
 
 }

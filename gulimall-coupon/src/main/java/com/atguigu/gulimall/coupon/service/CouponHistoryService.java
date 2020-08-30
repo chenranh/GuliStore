@@ -7,11 +7,11 @@ import com.atguigu.gulimall.coupon.entity.CouponHistoryEntity;
 import java.util.Map;
 
 /**
- * ?Ż?ȯ??ȡ??ʷ??¼
+ * 优惠券领取历史记录
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:26:04
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:36:40
  */
 public interface CouponHistoryService extends IService<CouponHistoryEntity> {
 

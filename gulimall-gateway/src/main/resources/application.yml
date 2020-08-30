@@ -11,7 +11,7 @@ spring:
           predicates:
             - Query=url,qq
 
-        ## http://localhost:88/api/product/category/list/tree http://localhost:10000/product/category/list/tree
+        ## http://localhost:88/api/product/category/list/tree   http://localhost:10000/product/category/list/tree
         - id: product_route
           uri: lb://gulimall-product
           predicates:
@@ -26,6 +26,13 @@ spring:
             - Path=/api/thirdparty/**
           filters:
             - RewritePath=/api/thirdparty/(?<segment>.*),/$\{segment}
+
+        - id: member_route
+          uri: lb://gulimall-member
+          predicates:
+            - Path=/api/member/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}
 
 
         ## 前端项目，/api,发送请求的时候都带上api前缀
