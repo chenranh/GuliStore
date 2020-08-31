@@ -13,14 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.atguigu.gulimall.ware.entity.PurchaseDetailEntity;
 import com.atguigu.gulimall.ware.service.PurchaseDetailService;
 import com.atguigu.common.utils.PageUtils;
+import com.atguigu.common.utils.R;
+
 
 
 /**
  * 
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 18:24:26
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-11-17 13:50:10
  */
 @RestController
 @RequestMapping("ware/purchasedetail")
@@ -44,7 +46,7 @@ public class PurchaseDetailController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-   // @RequiresPermissions("ware:purchasedetail:info")
+    //@RequiresPermissions("ware:purchasedetail:info")
     public R info(@PathVariable("id") Long id){
 		PurchaseDetailEntity purchaseDetail = purchaseDetailService.getById(id);
 
@@ -55,7 +57,7 @@ public class PurchaseDetailController {
      * 保存
      */
     @RequestMapping("/save")
-  //  @RequiresPermissions("ware:purchasedetail:save")
+    //@RequiresPermissions("ware:purchasedetail:save")
     public R save(@RequestBody PurchaseDetailEntity purchaseDetail){
 		purchaseDetailService.save(purchaseDetail);
 
@@ -66,7 +68,7 @@ public class PurchaseDetailController {
      * 修改
      */
     @RequestMapping("/update")
-   // @RequiresPermissions("ware:purchasedetail:update")
+    //@RequiresPermissions("ware:purchasedetail:update")
     public R update(@RequestBody PurchaseDetailEntity purchaseDetail){
 		purchaseDetailService.updateById(purchaseDetail);
 
@@ -77,7 +79,7 @@ public class PurchaseDetailController {
      * 删除
      */
     @RequestMapping("/delete")
-   // @RequiresPermissions("ware:purchasedetail:delete")
+    //@RequiresPermissions("ware:purchasedetail:delete")
     public R delete(@RequestBody Long[] ids){
 		purchaseDetailService.removeByIds(Arrays.asList(ids));
 

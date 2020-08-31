@@ -8,11 +8,11 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * ???湤????
+ * 库存工作单
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 18:24:26
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:59:40
  */
 @Data
 @TableName("wms_ware_order_task")
@@ -20,60 +20,60 @@ public class WareOrderTaskEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * order_id
 	 */
 	private Long orderId;
 	/**
-	 * $column.comments
+	 * order_sn
 	 */
 	private String orderSn;
 	/**
-	 * $column.comments
+	 * 收货人
 	 */
 	private String consignee;
 	/**
-	 * $column.comments
+	 * 收货人电话
 	 */
 	private String consigneeTel;
 	/**
-	 * $column.comments
+	 * 配送地址
 	 */
 	private String deliveryAddress;
 	/**
-	 * $column.comments
+	 * 订单备注
 	 */
 	private String orderComment;
 	/**
-	 * $column.comments
+	 * 付款方式【 1:在线付款 2:货到付款】
 	 */
 	private Integer paymentWay;
 	/**
-	 * $column.comments
+	 * 任务状态
 	 */
 	private Integer taskStatus;
 	/**
-	 * $column.comments
+	 * 订单描述
 	 */
 	private String orderBody;
 	/**
-	 * $column.comments
+	 * 物流单号
 	 */
 	private String trackingNo;
 	/**
-	 * $column.comments
+	 * create_time
 	 */
 	private Date createTime;
 	/**
-	 * $column.comments
+	 * 仓库id
 	 */
 	private Long wareId;
 	/**
-	 * $column.comments
+	 * 工作单备注
 	 */
 	private String taskComment;
 

@@ -13,14 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.atguigu.gulimall.ware.entity.WareOrderTaskDetailEntity;
 import com.atguigu.gulimall.ware.service.WareOrderTaskDetailService;
 import com.atguigu.common.utils.PageUtils;
+import com.atguigu.common.utils.R;
+
 
 
 /**
- * ???湤????
+ * 库存工作单
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 18:24:26
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:59:40
  */
 @RestController
 @RequestMapping("ware/wareordertaskdetail")
@@ -44,7 +46,7 @@ public class WareOrderTaskDetailController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-   // @RequiresPermissions("ware:wareordertaskdetail:info")
+    //@RequiresPermissions("ware:wareordertaskdetail:info")
     public R info(@PathVariable("id") Long id){
 		WareOrderTaskDetailEntity wareOrderTaskDetail = wareOrderTaskDetailService.getById(id);
 
@@ -55,7 +57,7 @@ public class WareOrderTaskDetailController {
      * 保存
      */
     @RequestMapping("/save")
-  //  @RequiresPermissions("ware:wareordertaskdetail:save")
+    //@RequiresPermissions("ware:wareordertaskdetail:save")
     public R save(@RequestBody WareOrderTaskDetailEntity wareOrderTaskDetail){
 		wareOrderTaskDetailService.save(wareOrderTaskDetail);
 
@@ -66,7 +68,7 @@ public class WareOrderTaskDetailController {
      * 修改
      */
     @RequestMapping("/update")
-   // @RequiresPermissions("ware:wareordertaskdetail:update")
+    //@RequiresPermissions("ware:wareordertaskdetail:update")
     public R update(@RequestBody WareOrderTaskDetailEntity wareOrderTaskDetail){
 		wareOrderTaskDetailService.updateById(wareOrderTaskDetail);
 
@@ -77,7 +79,7 @@ public class WareOrderTaskDetailController {
      * 删除
      */
     @RequestMapping("/delete")
-   // @RequiresPermissions("ware:wareordertaskdetail:delete")
+    //@RequiresPermissions("ware:wareordertaskdetail:delete")
     public R delete(@RequestBody Long[] ids){
 		wareOrderTaskDetailService.removeByIds(Arrays.asList(ids));
 

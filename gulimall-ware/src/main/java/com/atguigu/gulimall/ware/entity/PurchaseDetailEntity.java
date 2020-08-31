@@ -11,9 +11,9 @@ import lombok.Data;
 /**
  * 
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 18:24:26
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-11-17 13:50:10
  */
 @Data
 @TableName("wms_purchase_detail")
@@ -21,32 +21,32 @@ public class PurchaseDetailEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * 
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * 采购单id
 	 */
 	private Long purchaseId;
 	/**
-	 * $column.comments
+	 * 采购商品id
 	 */
 	private Long skuId;
 	/**
-	 * $column.comments
+	 * 采购数量
 	 */
 	private Integer skuNum;
 	/**
-	 * $column.comments
+	 * 采购金额
 	 */
 	private BigDecimal skuPrice;
 	/**
-	 * $column.comments
+	 * 仓库id
 	 */
 	private Long wareId;
 	/**
-	 * $column.comments
+	 * 状态[0新建，1已分配，2正在采购，3已完成，4采购失败]
 	 */
 	private Integer status;
 

@@ -8,11 +8,11 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * ?ֿ???Ϣ
+ * 仓库信息
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 18:24:26
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:59:40
  */
 @Data
 @TableName("wms_ware_info")
@@ -20,20 +20,20 @@ public class WareInfoEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * 仓库名
 	 */
 	private String name;
 	/**
-	 * $column.comments
+	 * 仓库地址
 	 */
 	private String address;
 	/**
-	 * $column.comments
+	 * 区域编码
 	 */
 	private String areacode;
 

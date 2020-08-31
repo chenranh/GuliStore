@@ -13,14 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.atguigu.gulimall.ware.entity.WareSkuEntity;
 import com.atguigu.gulimall.ware.service.WareSkuService;
 import com.atguigu.common.utils.PageUtils;
+import com.atguigu.common.utils.R;
+
 
 
 /**
- * ??Ʒ???
+ * 商品库存
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 18:24:26
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:59:40
  */
 @RestController
 @RequestMapping("ware/waresku")
@@ -44,7 +46,7 @@ public class WareSkuController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-   // @RequiresPermissions("ware:waresku:info")
+    //@RequiresPermissions("ware:waresku:info")
     public R info(@PathVariable("id") Long id){
 		WareSkuEntity wareSku = wareSkuService.getById(id);
 
@@ -55,7 +57,7 @@ public class WareSkuController {
      * 保存
      */
     @RequestMapping("/save")
-  //  @RequiresPermissions("ware:waresku:save")
+    //@RequiresPermissions("ware:waresku:save")
     public R save(@RequestBody WareSkuEntity wareSku){
 		wareSkuService.save(wareSku);
 
@@ -66,7 +68,7 @@ public class WareSkuController {
      * 修改
      */
     @RequestMapping("/update")
-   // @RequiresPermissions("ware:waresku:update")
+    //@RequiresPermissions("ware:waresku:update")
     public R update(@RequestBody WareSkuEntity wareSku){
 		wareSkuService.updateById(wareSku);
 
@@ -77,7 +79,7 @@ public class WareSkuController {
      * 删除
      */
     @RequestMapping("/delete")
-   // @RequiresPermissions("ware:waresku:delete")
+    //@RequiresPermissions("ware:waresku:delete")
     public R delete(@RequestBody Long[] ids){
 		wareSkuService.removeByIds(Arrays.asList(ids));
 

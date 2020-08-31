@@ -8,11 +8,11 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * ??Ʒ???
+ * 商品库存
  * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 18:24:26
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:59:40
  */
 @Data
 @TableName("wms_ware_sku")
@@ -20,28 +20,28 @@ public class WareSkuEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * sku_id
 	 */
 	private Long skuId;
 	/**
-	 * $column.comments
+	 * 仓库id
 	 */
 	private Long wareId;
 	/**
-	 * $column.comments
+	 * 库存数
 	 */
 	private Integer stock;
 	/**
-	 * $column.comments
+	 * sku_name
 	 */
 	private String skuName;
 	/**
-	 * $column.comments
+	 * 锁定库存
 	 */
 	private Integer stockLocked;
 

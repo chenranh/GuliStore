@@ -7,11 +7,11 @@ import com.atguigu.gulimall.ware.entity.WareInfoEntity;
 import java.util.Map;
 
 /**
- * ?ֿ???Ϣ
+ * 仓库信息
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 18:24:26
+ * @author leifengyang
+ * @email leifengyang@gmail.com
+ * @date 2019-10-08 09:59:40
  */
 public interface WareInfoService extends IService<WareInfoEntity> {
 
