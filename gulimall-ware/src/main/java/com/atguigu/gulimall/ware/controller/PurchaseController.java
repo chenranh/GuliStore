@@ -30,6 +30,11 @@ public class PurchaseController {
     @Autowired
     private PurchaseService purchaseService;
 
+    /**
+     * 完成采购单
+     * @param doneVo
+     * @return
+     */
     ///ware/purchase/done
     @PostMapping("/done")
     public R finish(@RequestBody PurchaseDoneVo doneVo){
@@ -51,6 +56,11 @@ public class PurchaseController {
         return R.ok();
     }
 
+    /**
+     * 合并采购单
+     * @param mergeVo
+     * @return
+     */
     ///ware/purchase/unreceive/list
     ///ware/purchase/merge
     @PostMapping("/merge")

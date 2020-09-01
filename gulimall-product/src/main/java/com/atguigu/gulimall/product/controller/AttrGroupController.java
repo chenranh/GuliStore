@@ -82,7 +82,7 @@ public class AttrGroupController {
     }
 
     /**
-     * 列表
+     *获取分类属性分组列表
      */
     @RequestMapping("/list/{catelogId}")
     //@RequiresPermissions("product:attrgroup:list")
@@ -97,7 +97,8 @@ public class AttrGroupController {
 
 
     /**
-     * 信息
+     * 找到catelogId的完整路径，用于回显 [1，20，225]
+     * 用到递归
      */
     @RequestMapping("/info/{attrGroupId}")
     //@RequiresPermissions("product:attrgroup:info")
@@ -115,7 +116,7 @@ public class AttrGroupController {
 
 
     /**
-     * 保存
+     * 新增分组
      */
     @RequestMapping("/save")
     //@RequiresPermissions("product:attrgroup:save")
@@ -126,7 +127,7 @@ public class AttrGroupController {
     }
 
     /**
-     * 修改
+     * 修改分组
      */
     @RequestMapping("/update")
     //@RequiresPermissions("product:attrgroup:update")

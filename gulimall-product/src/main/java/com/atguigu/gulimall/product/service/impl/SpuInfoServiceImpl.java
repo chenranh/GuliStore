@@ -71,7 +71,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
      */
     @Transactional
     @Override
-    public void saveSpuInfo(SpuSaveVo vo) {
+    public void  saveSpuInfo(SpuSaveVo vo) {
 
         //1、保存spu基本信息 pms_spu_info
         SpuInfoEntity infoEntity = new SpuInfoEntity();
@@ -81,6 +81,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         this.saveBaseSpuInfo(infoEntity);
 
         //2、保存Spu的描述图片 pms_spu_info_desc
+        //多条图片保存在另一个表里
         List<String> decript = vo.getDecript();
         SpuInfoDescEntity descEntity = new SpuInfoDescEntity();
         descEntity.setSpuId(infoEntity.getId());
@@ -98,8 +99,8 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         List<ProductAttrValueEntity> collect = baseAttrs.stream().map(attr -> {
             ProductAttrValueEntity valueEntity = new ProductAttrValueEntity();
             valueEntity.setAttrId(attr.getAttrId());
-            AttrEntity id = attrService.getById(attr.getAttrId());
-            valueEntity.setAttrName(id.getAttrName());
+            AttrEntity attrEntity = attrService.getById(attr.getAttrId());
+            valueEntity.setAttrName(attrEntity.getAttrName());
             valueEntity.setAttrValue(attr.getAttrValues());
             valueEntity.setQuickShow(attr.getShowDesc());
             valueEntity.setSpuId(infoEntity.getId());
@@ -161,10 +162,10 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 skuImagesService.saveBatch(imagesEntities);
                 //TODO 没有图片路径的无需保存
 
-                List<Attr> attr = item.getAttr();
-                List<SkuSaleAttrValueEntity> skuSaleAttrValueEntities = attr.stream().map(a -> {
+                List<Attr> attrs = item.getAttr();
+                List<SkuSaleAttrValueEntity> skuSaleAttrValueEntities = attrs.stream().map(attr -> {
                     SkuSaleAttrValueEntity attrValueEntity = new SkuSaleAttrValueEntity();
-                    BeanUtils.copyProperties(a, attrValueEntity);
+                    BeanUtils.copyProperties(attr, attrValueEntity);
                     attrValueEntity.setSkuId(skuId);
 
                     return attrValueEntity;

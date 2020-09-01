@@ -54,7 +54,7 @@ public class SpuInfoController {
     }
 
     /**
-     * 保存
+     * 前端添加商品 后端保存
      */
     @RequestMapping("/save")
     //@RequiresPermissions("product:spuinfo:save")
