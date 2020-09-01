@@ -16,7 +16,7 @@ import lombok.Data;
 
 /**
  * 商品三级分类
- * 
+ *
  * @author leifengyang
  * @email leifengyang@gmail.com
  * @date 2019-10-01 21:08:48
@@ -66,6 +66,8 @@ public class CategoryEntity implements Serializable {
 	 */
 	private Integer productCount;
 
+
+	//如果为空就不显示这个字段了 ，不加会显示空数组
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	//表示当前属性不是数据库的字段，但在项目中必须使用，
 	// 这样在使用bean的时候，mybatis-plus就会忽略这个，不会报错

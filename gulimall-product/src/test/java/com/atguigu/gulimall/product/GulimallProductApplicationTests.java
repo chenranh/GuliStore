@@ -78,6 +78,7 @@ class GulimallProductApplicationTests {
 //     * 1、引入oss-starter
 //     * 2、配置key，endpoint相关信息即可
 //     * 3、使用OSSClient 进行相关操作
+//     * 4、在yml文件里配置好了endpoint, accessKeyId, accessKeySecret
 //     */
 //    @Test
 //    void testUpload2() throws FileNotFoundException {
