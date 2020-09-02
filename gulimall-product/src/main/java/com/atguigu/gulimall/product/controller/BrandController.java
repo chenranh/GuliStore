@@ -85,7 +85,7 @@ public class BrandController {
     }
 
     /**
-     * 修改
+     * 修改,同时更新关联表
      */
     @RequestMapping("/update")
     //@RequiresPermissions("product:brand:update")

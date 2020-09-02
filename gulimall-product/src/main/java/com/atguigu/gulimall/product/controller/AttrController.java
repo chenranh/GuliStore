@@ -18,6 +18,8 @@ import com.atguigu.common.utils.PageUtils;
 
 /**
  * 商品属性
+ * 属性分组只关联规格参数。
+ * 销售属性有笛卡尔集
  *
  * @author leifengyang
  * @email leifengyang@gmail.com
@@ -32,8 +34,11 @@ public class AttrController {
     @Autowired
     ProductAttrValueService productAttrValueService;
 
-    ///product/attr/info/{attrId}
-
+    /**
+     *
+     * @param spuId
+     * @return
+     */
     // /product/attr/base/listforspu/{spuId}
     @GetMapping("/base/listforspu/{spuId}")
     public R baseAttrlistforspu(@PathVariable("spuId") Long spuId){
@@ -43,6 +48,13 @@ public class AttrController {
         return R.ok().put("data",entities);
     }
 
+    /**
+     * 查询规格参数，规格参数是基本属性
+     * @param params
+     * @param catelogId
+     * @param type
+     * @return
+     */
     //product/attr/sale/list/0?
     ///product/attr/base/list/{catelogId}
     @GetMapping("/{attrType}/list/{catelogId}")
@@ -67,7 +79,8 @@ public class AttrController {
 
 
     /**
-     * 信息
+     * 根据attrId查询规格参数 基本属性的详细信息
+     * 点击修改时会先进行查询返显
      */
     @RequestMapping("/info/{attrId}")
     //@RequiresPermissions("product:attr:info")
@@ -79,7 +92,7 @@ public class AttrController {
     }
 
     /**
-     * 保存
+     * 保存attr表和attr_group_relation表
      */
     @RequestMapping("/save")
     //@RequiresPermissions("product:attr:save")
@@ -93,7 +106,7 @@ public class AttrController {
 
 
     /**
-     * 修改
+     * 修改，没有绑定分组的新增分组
      */
     @RequestMapping("/update")
     //@RequiresPermissions("product:attr:update")
@@ -103,6 +116,12 @@ public class AttrController {
         return R.ok();
     }
 
+    /**
+     * 修改对应spu的属性
+     * @param spuId
+     * @param entities
+     * @return
+     */
     ///product/attr/update/{spuId}
     @PostMapping("/update/{spuId}")
     public R updateSpuAttr(@PathVariable("spuId") Long spuId,

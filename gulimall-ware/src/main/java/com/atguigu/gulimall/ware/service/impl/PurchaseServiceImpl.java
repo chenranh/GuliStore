@@ -112,10 +112,9 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
                 return true;
             }
             return false;
-        }).map(item->{
+        }).peek(item->{
             item.setStatus(WareConstant.PurchaseStatusEnum.RECEIVE.getCode());
             item.setUpdateTime(new Date());
-            return item;
         }).collect(Collectors.toList());
 
         //2、改变采购单的状态

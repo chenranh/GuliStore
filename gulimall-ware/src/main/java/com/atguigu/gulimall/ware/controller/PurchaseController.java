@@ -46,6 +46,7 @@ public class PurchaseController {
 
     /**
      * 领取采购单
+     * 改变采购单状态
      * @return
      */
     @PostMapping("/received")
@@ -57,7 +58,7 @@ public class PurchaseController {
     }
 
     /**
-     * 合并采购单
+     * 合并采购需求
      * @param mergeVo
      * @return
      */
@@ -70,6 +71,11 @@ public class PurchaseController {
         return R.ok();
     }
 
+    /**
+     * 查询未领取的采购单
+     * @param params
+     * @return
+     */
     @RequestMapping("/unreceive/list")
     //@RequiresPermissions("ware:purchase:list")
     public R unreceivelist(@RequestParam Map<String, Object> params){
@@ -115,7 +121,7 @@ public class PurchaseController {
     }
 
     /**
-     * 修改
+     * 分配给采购人员
      */
     @RequestMapping("/update")
     //@RequiresPermissions("ware:purchase:update")

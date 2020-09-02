@@ -1,7 +1,7 @@
 /**
  * Copyright 2019 bejson.com
  */
-package com.atguigu.gulimall.product.vo;
+package com.atguigu.gulimall.product.vo.fromweb;
 
 import lombok.Data;
 
@@ -19,11 +19,11 @@ public class SpuSaveVo {
 
     private String spuName;
     private String spuDescription;
-    private Long catalogId;
+    private Long catelogId;
     private Long brandId;
     private BigDecimal weight;
     private int publishStatus;
-    private List<String> decript;
+    private List<String> decript;//商品介绍
     private List<String> images;
     private Bounds bounds;
     private List<BaseAttrs> baseAttrs;

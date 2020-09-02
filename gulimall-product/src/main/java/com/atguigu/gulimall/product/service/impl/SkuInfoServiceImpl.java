@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.product.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -52,13 +53,13 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         }
 
         String catelogId = (String) params.get("catelogId");
-        if(!StringUtils.isEmpty(catelogId)&&!"0".equalsIgnoreCase(catelogId)){
+        if(StrUtil.isNotBlank(catelogId) &&!"0".equalsIgnoreCase(catelogId)){
 
-            queryWrapper.eq("catalog_id",catelogId);
+            queryWrapper.eq("catelog_id",catelogId);
         }
 
         String brandId = (String) params.get("brandId");
-        if(!StringUtils.isEmpty(brandId)&&!"0".equalsIgnoreCase(catelogId)){
+        if(StrUtil.isNotBlank(brandId)&&!"0".equalsIgnoreCase(catelogId)){
             queryWrapper.eq("brand_id",brandId);
         }
 

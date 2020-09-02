@@ -1,20 +1,20 @@
 package com.atguigu.gulimall.product.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.atguigu.common.to.SkuReductionTo;
 import com.atguigu.common.to.SpuBoundTo;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.product.entity.*;
 import com.atguigu.gulimall.product.feign.CouponFeignService;
 import com.atguigu.gulimall.product.service.*;
-import com.atguigu.gulimall.product.vo.*;
+import com.atguigu.gulimall.product.vo.fromweb.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -71,7 +71,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
      */
     @Transactional
     @Override
-    public void  saveSpuInfo(SpuSaveVo vo) {
+    public void saveSpuInfo(SpuSaveVo vo) {
 
         //1、保存spu基本信息 pms_spu_info
         SpuInfoEntity infoEntity = new SpuInfoEntity();
@@ -80,7 +80,8 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         infoEntity.setUpdateTime(new Date());
         this.saveBaseSpuInfo(infoEntity);
 
-        //2、保存Spu的描述图片 pms_spu_info_desc
+        //2、保存Spu的描述图片 pms_spu_info_desc，对应的商品介绍
+        //可以理解为详情图
         //多条图片保存在另一个表里
         List<String> decript = vo.getDecript();
         SpuInfoDescEntity descEntity = new SpuInfoDescEntity();
@@ -95,19 +96,41 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
 
         //4、保存spu的规格参数;pms_product_attr_value
-        List<BaseAttrs> baseAttrs = vo.getBaseAttrs();
-        List<ProductAttrValueEntity> collect = baseAttrs.stream().map(attr -> {
-            ProductAttrValueEntity valueEntity = new ProductAttrValueEntity();
-            valueEntity.setAttrId(attr.getAttrId());
-            AttrEntity attrEntity = attrService.getById(attr.getAttrId());
-            valueEntity.setAttrName(attrEntity.getAttrName());
-            valueEntity.setAttrValue(attr.getAttrValues());
-            valueEntity.setQuickShow(attr.getShowDesc());
-            valueEntity.setSpuId(infoEntity.getId());
 
+        //改进写法 把循环遍历里的数据库查询提到外面
+        List<BaseAttrs> baseAttrs = vo.getBaseAttrs();
+        List<Long> attrIdList = baseAttrs.stream().map(baseAttr -> baseAttr.getAttrId()).collect(Collectors.toList());
+
+        List<AttrEntity> attrEntityList = attrService.getAtrrListByIds(attrIdList);
+
+        Map<Long, AttrEntity> giftMap =  attrEntityList.stream().collect(Collectors.toMap(AttrEntity::getAttrId, Function.identity()));
+
+        List<ProductAttrValueEntity> collect=baseAttrs.stream().map(baseAttr->{
+            ProductAttrValueEntity valueEntity = new ProductAttrValueEntity();
+            valueEntity.setAttrId(baseAttr.getAttrId());
+            valueEntity.setAttrName(giftMap.get(baseAttr.getAttrId()).getAttrName());
+            valueEntity.setAttrValue(baseAttr.getAttrValues());
+            valueEntity.setQuickShow(baseAttr.getShowDesc());
+            valueEntity.setSpuId(infoEntity.getId());
             return valueEntity;
         }).collect(Collectors.toList());
         attrValueService.saveProductAttr(collect);
+
+//        List<BaseAttrs> baseAttrs = vo.getBaseAttrs();
+//
+//        List<ProductAttrValueEntity> collect = baseAttrs.stream().map(attr -> {
+//            ProductAttrValueEntity valueEntity = new ProductAttrValueEntity();
+//            valueEntity.setAttrId(attr.getAttrId());
+//            // TODO: 2020/9/2 修改循环查询数据库
+//            AttrEntity attrEntity = attrService.getById(attr.getAttrId());
+//            valueEntity.setAttrName(attrEntity.getAttrName());
+//            valueEntity.setAttrValue(attr.getAttrValues());
+//            valueEntity.setQuickShow(attr.getShowDesc());
+//            valueEntity.setSpuId(infoEntity.getId());
+//
+//            return valueEntity;
+//        }).collect(Collectors.toList());
+//        attrValueService.saveProductAttr(collect);
 
 
         //5、保存spu的积分信息；gulimall_sms->sms_spu_bounds
@@ -139,7 +162,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 SkuInfoEntity skuInfoEntity = new SkuInfoEntity();
                 BeanUtils.copyProperties(item, skuInfoEntity);
                 skuInfoEntity.setBrandId(infoEntity.getBrandId());
-                skuInfoEntity.setCatalogId(infoEntity.getCatalogId());
+                skuInfoEntity.setCatelogId(infoEntity.getCatelogId());
                 skuInfoEntity.setSaleCount(0L);
                 skuInfoEntity.setSpuId(infoEntity.getId());
                 skuInfoEntity.setSkuDefaultImg(defaultImg);
@@ -177,6 +200,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 SkuReductionTo skuReductionTo = new SkuReductionTo();
                 BeanUtils.copyProperties(item, skuReductionTo);
                 skuReductionTo.setSkuId(skuId);
+                //如果满减有问题就不再提交给远程服务
                 if (skuReductionTo.getFullCount() > 0 || skuReductionTo.getFullPrice().compareTo(new BigDecimal("0")) == 1) {
                     R r1 = couponFeignService.saveSkuReduction(skuReductionTo);
                     if (r1.getCode() != 0) {
@@ -198,6 +222,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     /**
      * 条件查询
+     *
      * @param params
      * @return
      */
@@ -207,25 +232,25 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         QueryWrapper<SpuInfoEntity> wrapper = new QueryWrapper<>();
 
         String key = (String) params.get("key");
-        if (!StringUtils.isEmpty(key)) {
+        if (StrUtil.isNotBlank(key)) {
             wrapper.and((w) -> {
                 w.eq("id", key).or().like("spu_name", key);
             });
         }
         // status=1 and (id=1 or spu_name like xxx)
         String status = (String) params.get("status");
-        if (!StringUtils.isEmpty(status)) {
+        if (StrUtil.isNotBlank(status)) {
             wrapper.eq("publish_status", status);
         }
 
         String brandId = (String) params.get("brandId");
-        if (!StringUtils.isEmpty(brandId) && !"0".equalsIgnoreCase(brandId)) {
+        if (StrUtil.isNotBlank(brandId) && !"0".equalsIgnoreCase(brandId)) {
             wrapper.eq("brand_id", brandId);
         }
 
         String catelogId = (String) params.get("catelogId");
-        if (!StringUtils.isEmpty(catelogId) && !"0".equalsIgnoreCase(catelogId)) {
-            wrapper.eq("catalog_id", catelogId);
+        if (StrUtil.isNotBlank(catelogId) && !"0".equalsIgnoreCase(catelogId)) {
+            wrapper.eq("catelog_id", catelogId);
         }
 
         /**

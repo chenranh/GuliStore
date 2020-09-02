@@ -1,17 +1,15 @@
 /**
   * Copyright 2019 bejson.com 
   */
-package com.atguigu.gulimall.product.vo;
+package com.atguigu.gulimall.product.vo.fromweb;
 
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 /**
- * Auto-generated: 2019-11-26 10:50:34
- *
- * @author bejson.com (i@bejson.com)
- * @website http://www.bejson.com/java2pojo/
+ * 会员相关
+ * 购买积分和成长积分
  */
 @Data
 public class Bounds {
