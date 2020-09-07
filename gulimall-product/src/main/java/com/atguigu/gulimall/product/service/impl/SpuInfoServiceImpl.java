@@ -14,8 +14,7 @@ import com.atguigu.gulimall.product.feign.CouponFeignService;
 import com.atguigu.gulimall.product.feign.SearchFeignService;
 import com.atguigu.gulimall.product.feign.WareFeignService;
 import com.atguigu.gulimall.product.service.*;
-import com.atguigu.gulimall.product.vo.fromweb.*;
-import com.sun.xml.internal.bind.v2.TODO;
+import com.atguigu.gulimall.product.vo.productaddvo.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -365,7 +364,6 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         //todo 数据发送给es进行保存
 
         R r = searchFeignService.productStatusUp(upProducts);
-        //todo 这里有点问题  返回远程调用失败 但是数据能够保存到es
         if (r.getCode()==0){
             //远程调用成功
             // 修改当前spu的状态

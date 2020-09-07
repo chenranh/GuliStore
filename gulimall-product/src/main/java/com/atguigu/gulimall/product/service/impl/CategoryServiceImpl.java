@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.product.service.impl;
 
 import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
+import com.atguigu.gulimall.product.vo.forwebvo.Catelog2VO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -104,6 +105,80 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     public void updateCascade(CategoryEntity category) {
         this.updateById(category);
         categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
+    }
+
+    /**
+     * 查询所有一级分类，web页面显示
+     * @return
+     */
+    @Override
+    public List<CategoryEntity> getLevel1Category() {
+        List<CategoryEntity> categoryEntities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
+
+        return categoryEntities;
+    }
+
+    /**
+     * 查出所有分类，按要求进行组装
+     *  "1":[
+     *         {
+     *             "catalog1Id":"1",
+     *             "id":"1",
+     *             "name":"电子书刊",
+     *             "catalog3List":[
+     *                 {
+     *                     "catalog2Id":"1",
+     *                     "id":"1",
+     *                     "name":"电子书"
+     *                 },
+     *                 {
+     *                     "catalog2Id":"1",
+     *                     "id":"2",
+     *                     "name":"网络原创"
+     *                 },
+     *                 {
+     *                     "catalog2Id":"1",
+     *                     "id":"3",
+     *                     "name":"数字杂志"
+     *                 },
+     *                 {
+     *                     "catalog2Id":"1",
+     *                     "id":"4",
+     *                     "name":"多媒体图书"
+     *                 }
+     *             ],
+     *         },
+     * @return
+     */
+    @Override
+    public Map<String, List<Catelog2VO>> getCataLogJson() {
+        //查出所有1级分类
+        List<CategoryEntity> level1List = getLevel1Category();
+        //封装数据,K是一级分类前面的数字
+        Map<String, List<Catelog2VO>> parent_cid = level1List.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            //每一个的1级分类，查到这个1级分类的2级分类
+            List<CategoryEntity> categoryEntities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", v.getCatId()));
+            //封装上面的结果
+            List<Catelog2VO> catelog2Vos = null;
+            if (categoryEntities != null) {
+                catelog2Vos = categoryEntities.stream().map(level2 -> {
+                    Catelog2VO catelog2Vo = new Catelog2VO(v.getCatId().toString(),null , level2.getCatId().toString(), level2.getName());
+                    //找当前二级分类找三级分类封装成vo
+                    List<CategoryEntity> level3Catelog = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", level2.getCatId()));
+                    if (level3Catelog!=null){
+                        List<Catelog2VO.Catelog3VO> level3List = level3Catelog.stream().map(level3 -> {
+                            //封装成指定格式
+                            Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO(level2.getCatId().toString() ,level3.getCatId().toString(),level3.getName());
+                            return catelog3VO;
+                        }).collect(Collectors.toList());
+                        catelog2Vo.setCatalog3List(level3List);
+                    }
+                    return catelog2Vo;
+                }).collect(Collectors.toList());
+            }
+            return catelog2Vos;
+        }));
+        return parent_cid;
     }
 
     //225,25,2
