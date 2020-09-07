@@ -38,5 +38,11 @@ public interface AttrService extends IService<AttrEntity> {
 
     List<AttrEntity>getAtrrListByIds(List<Long> attrIdList);
 
+    /**
+     * 在指定的所有属性集合里面挑出检索属性
+     * @param attrIds
+     * @return
+     */
+    List<Long> selectSerachAttrIds(List<Long> attrIds);
 }
 

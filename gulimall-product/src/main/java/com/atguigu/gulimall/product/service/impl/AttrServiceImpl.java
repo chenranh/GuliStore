@@ -279,4 +279,10 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         return attrEntities;
     }
 
+    @Override
+    public List<Long> selectSerachAttrIds(List<Long> attrIds) {
+        this.baseMapper.selectSerachAttrIds(attrIds);
+        return attrIds;
+    }
+
 }
