@@ -52,6 +52,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  *  5.3 页面放在templates 下直接访问
  *      springboot访问项目的时候默认会找index
  *
+ * 6.redis
+ * 引入data-spring-redis
+ * 简单配置redis的host等信息
+ * 使用配置好的stringRedistemplate来操作redis
  */
 @SpringBootApplication
 @EnableDiscoveryClient

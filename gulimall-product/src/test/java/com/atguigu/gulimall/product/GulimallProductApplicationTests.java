@@ -8,9 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.UUID;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -18,6 +21,17 @@ class GulimallProductApplicationTests {
     @Autowired
     BrandService brandService;
 
+    @Autowired
+    StringRedisTemplate redisTemplate;
+
+
+    //测试redis
+    @Test
+    void testRedis(){
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        //保存
+        ops.set("hello","word"+ UUID.randomUUID().toString());
+    }
 
 
     @Test

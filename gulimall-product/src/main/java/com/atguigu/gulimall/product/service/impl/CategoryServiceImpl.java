@@ -1,8 +1,12 @@
 package com.atguigu.gulimall.product.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
 import com.atguigu.gulimall.product.vo.forwebvo.Catelog2VO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -28,6 +32,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Autowired
     CategoryBrandRelationService categoryBrandRelationService;
+
+    @Autowired
+    StringRedisTemplate redisTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -109,6 +116,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     /**
      * 查询所有一级分类，web页面显示
+     *
      * @return
      */
     @Override
@@ -120,41 +128,70 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     /**
      * 查出所有分类，按要求进行组装
-     *  "1":[
-     *         {
-     *             "catalog1Id":"1",
-     *             "id":"1",
-     *             "name":"电子书刊",
-     *             "catalog3List":[
-     *                 {
-     *                     "catalog2Id":"1",
-     *                     "id":"1",
-     *                     "name":"电子书"
-     *                 },
-     *                 {
-     *                     "catalog2Id":"1",
-     *                     "id":"2",
-     *                     "name":"网络原创"
-     *                 },
-     *                 {
-     *                     "catalog2Id":"1",
-     *                     "id":"3",
-     *                     "name":"数字杂志"
-     *                 },
-     *                 {
-     *                     "catalog2Id":"1",
-     *                     "id":"4",
-     *                     "name":"多媒体图书"
-     *                 }
-     *             ],
-     *         },
+     * "1":[
+     * {
+     * "catalog1Id":"1",
+     * "id":"1",
+     * "name":"电子书刊",
+     * "catalog3List":[
+     * {
+     * "catalog2Id":"1",
+     * "id":"1",
+     * "name":"电子书"
+     * },
+     * {
+     * "catalog2Id":"1",
+     * "id":"2",
+     * "name":"网络原创"
+     * },
+     * {
+     * "catalog2Id":"1",
+     * "id":"3",
+     * "name":"数字杂志"
+     * },
+     * {
+     * "catalog2Id":"1",
+     * "id":"4",
+     * "name":"多媒体图书"
+     * }
+     * ],
+     * },
+     *
      * @return
      */
 
-    //层级查询优化后的写法
-    //查出所有分类，按要求进行组装
+
+    //todo 堆外内存溢出
+    //springboot2.0以后会默认使用lettuce作为操作redis客户端
+    //lettuce的bug导致的堆外内存溢出
+    //解决方案 1.升级lettuce客户端 2.切换使用jedis
     @Override
     public Map<String, List<Catelog2VO>> getCataLogJson() {
+      //给缓存中放json字符串，拿出的json字符串需要逆转成能用的对象类型
+
+        //加入缓存,缓存中存的是json字符串
+        String catalogJson = redisTemplate.opsForValue().get("catalogJson");
+
+        if (StrUtil.isEmpty(catalogJson)) {
+            //缓存中没有
+            Map<String, List<Catelog2VO>> cataLogJsonFromDb = getCataLogJsonFromDb();
+            //查到的数据再放入缓存
+            redisTemplate.opsForValue().set("catalogJson", JSON.toJSONString(cataLogJsonFromDb));
+
+            return getCataLogJsonFromDb();
+        }
+
+        //转换成我们需要的类型,注意使用TypeReference （真好用！）
+        Map<String, List<Catelog2VO>> result = JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {});
+
+        return result;
+    }
+
+
+    //优化1 层级查询优化后的写法
+    //查出所有分类，按要求进行组装
+    //从数据库查询并封装数据
+    public Map<String, List<Catelog2VO>> getCataLogJsonFromDb() {
         /**
          * 1.将数据库的多次查询变为一次
          */
@@ -162,22 +199,22 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
 
         //查出所有1级分类
-        List<CategoryEntity> level1List = getParent_cid(selectList,0L);
+        List<CategoryEntity> level1List = getParent_cid(selectList, 0L);
         //封装数据,K是一级分类前面的数字
         Map<String, List<Catelog2VO>> parent_cid = level1List.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
             //每一个的1级分类，查到这个1级分类的2级分类，这里把循环查数据库优化
-            List<CategoryEntity> categoryEntities = getParent_cid(selectList,v.getCatId());
+            List<CategoryEntity> categoryEntities = getParent_cid(selectList, v.getCatId());
             //封装上面的结果
             List<Catelog2VO> catelog2Vos = null;
             if (categoryEntities != null) {
                 catelog2Vos = categoryEntities.stream().map(level2 -> {
-                    Catelog2VO catelog2Vo = new Catelog2VO(v.getCatId().toString(),null , level2.getCatId().toString(), level2.getName());
+                    Catelog2VO catelog2Vo = new Catelog2VO(v.getCatId().toString(), null, level2.getCatId().toString(), level2.getName());
                     //找当前二级分类找三级分类封装成vo，这里把循环查数据库优化
-                    List<CategoryEntity> level3Catelog = getParent_cid(selectList,level2.getCatId());
-                    if (level3Catelog!=null){
+                    List<CategoryEntity> level3Catelog = getParent_cid(selectList, level2.getCatId());
+                    if (level3Catelog != null) {
                         List<Catelog2VO.Catelog3VO> level3List = level3Catelog.stream().map(level3 -> {
                             //封装成指定格式
-                            Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO(level2.getCatId().toString() ,level3.getCatId().toString(),level3.getName());
+                            Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO(level2.getCatId().toString(), level3.getCatId().toString(), level3.getName());
                             return catelog3VO;
                         }).collect(Collectors.toList());
                         catelog2Vo.setCatalog3List(level3List);
@@ -191,11 +228,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
     //抽取出来的方法 refactor/extract/method
-    private List<CategoryEntity> getParent_cid( List<CategoryEntity> selectList,Long parent_cid) {
+    private List<CategoryEntity> getParent_cid(List<CategoryEntity> selectList, Long parent_cid) {
         //找到parent_cid是指定的
-        selectList.stream().filter(item->item.getParentCid()==parent_cid).collect(Collectors.toList());
+        List<CategoryEntity> collect = selectList.stream().filter(item -> item.getParentCid().equals(parent_cid)).collect(Collectors.toList());
         //return baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", parent_cid));
-        return selectList;
+        return collect;
     }
 
 //    @Override
