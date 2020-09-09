@@ -7,6 +7,7 @@ import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
 import com.atguigu.gulimall.product.vo.forwebvo.Catelog2VO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -182,12 +183,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         if (StrUtil.isEmpty(catalogJson)) {
             //缓存中没有
             System.out.println("*****************缓存不命中 查询数据库*******************");
-            Map<String, List<Catelog2VO>> cataLogJsonFromDb = getCataLogJsonFromDb();
+            Map<String, List<Catelog2VO>> cataLogJsonFromDb = getCataLogJsonFromDbWithLocalLock();
             //查到的数据再放入缓存
             //todo 如果数据库没有查到这个数据，可以把它设为false或者不为null的值放入redis，解决缓存穿透的问题
             redisTemplate.opsForValue().set("catalogJson", JSON.toJSONString(cataLogJsonFromDb), 1, TimeUnit.DAYS);
 
-            return getCataLogJsonFromDb();
+            return getCataLogJsonFromDbWithLocalLock();
         }
         System.out.println("*****************缓存命中直接返回*******************");
         //转换成我们需要的类型,注意使用TypeReference （真好用！）
@@ -201,7 +202,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     //优化1 层级查询优化后的写法
     //查出所有分类，按要求进行组装
     //从数据库查询并封装数据
-    public Map<String, List<Catelog2VO>> getCataLogJsonFromDb() {
+    //使用本地锁
+    public Map<String, List<Catelog2VO>> getCataLogJsonFromDbWithLocalLock() {
 
         //只要是同一把锁，就能锁住整个需要锁的所有线程
         //本地锁只能锁住当前线程，分布式下需要分布式锁
@@ -249,11 +251,105 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                 }
                 return catelog2Vos;
             }));
+            //查到的数据再放入到缓存，将对象转成json放在缓存中
+            String s = JSON.toJSONString(parent_cid);
+            redisTemplate.opsForValue().set("catalogJSON", s, 1, TimeUnit.DAYS);
             return parent_cid;
         }
 
 
     }
+
+
+    //使用分布式锁  核心加锁保证原子性 解锁保证原子性
+    public Map<String, List<Catelog2VO>> getCataLogJsonFromDbWithRedisLock() {
+
+        //占分布式锁。同时设置过期时间 去redis占坑
+        String uuid = UUID.randomUUID().toString();
+        Boolean lock = redisTemplate.opsForValue().setIfAbsent("lock", uuid, 300, TimeUnit.SECONDS);
+
+        if (lock) {
+            //加锁成功 执行业务
+            //设置过期时间 防止死锁必须和加锁是同一条命令 原子性
+            //redisTemplate.expire("lock",30,TimeUnit.SECONDS);
+            Map<String, List<Catelog2VO>> dataFromDb;
+            try {
+                dataFromDb = getDataFromDb();
+            } finally {
+                //获取值成功+对比成功删除是原子性  lua脚本解锁
+                String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+                //删除锁
+                Long lock1 = redisTemplate.execute(new DefaultRedisScript<Long>(script, Long.class), Arrays.asList("lock"), uuid);
+            }
+            //执行完以后删除锁 ，存在业务还没走完锁过期，别的线程抢占锁，这时候删除锁删除的是别人的锁，改进是增加uuid删除自己的锁
+            //redisTemplate.delete("lock");
+            //根据uuid取值拿到自己的锁进行删锁
+//            String lockValue = redisTemplate.opsForValue().get("lock");
+//            if (uuid.equals(lockValue)) {
+//                //删除自己的锁，存在问题是在在判断完是自己的锁，在redis传给服务端的过程中锁过期，别的线程抢占锁。这个时候删除的锁还是别人的锁
+//                redisTemplate.delete("lock");
+//            }
+            return dataFromDb;
+        } else {
+            //加锁失败 重试自旋的方式 自己调用自己  相当于自旋锁！！！！！？？？
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return getCataLogJsonFromDbWithRedisLock();
+        }
+
+
+    }
+
+    private Map<String, List<Catelog2VO>> getDataFromDb() {
+        String catalogJson = redisTemplate.opsForValue().get("catalogJson");
+        if (StrUtil.isNotEmpty(catalogJson)) {
+            //如果缓存不为空直接返回
+            Map<String, List<Catelog2VO>> result = JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {
+            });
+            return result;
+        }
+
+        /**
+         * 1.将数据库的多次查询变为一次
+         */
+        List<CategoryEntity> selectList = baseMapper.selectList(null);
+
+
+        //查出所有1级分类
+        List<CategoryEntity> level1List = getParent_cid(selectList, 0L);
+        //封装数据,K是一级分类前面的数字
+        Map<String, List<Catelog2VO>> parent_cid = level1List.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            //每一个的1级分类，查到这个1级分类的2级分类，这里把循环查数据库优化
+            List<CategoryEntity> categoryEntities = getParent_cid(selectList, v.getCatId());
+            //封装上面的结果
+            List<Catelog2VO> catelog2Vos = null;
+            if (categoryEntities != null) {
+                catelog2Vos = categoryEntities.stream().map(level2 -> {
+                    Catelog2VO catelog2Vo = new Catelog2VO(v.getCatId().toString(), null, level2.getCatId().toString(), level2.getName());
+                    //找当前二级分类找三级分类封装成vo，这里把循环查数据库优化
+                    List<CategoryEntity> level3Catelog = getParent_cid(selectList, level2.getCatId());
+                    if (level3Catelog != null) {
+                        List<Catelog2VO.Catelog3VO> level3List = level3Catelog.stream().map(level3 -> {
+                            //封装成指定格式
+                            Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO(level2.getCatId().toString(), level3.getCatId().toString(), level3.getName());
+                            return catelog3VO;
+                        }).collect(Collectors.toList());
+                        catelog2Vo.setCatalog3List(level3List);
+                    }
+                    return catelog2Vo;
+                }).collect(Collectors.toList());
+            }
+            return catelog2Vos;
+        }));
+        //查到的数据再放入到缓存，将对象转成json放在缓存中
+        String s = JSON.toJSONString(parent_cid);
+        redisTemplate.opsForValue().set("catalogJSON", s, 1, TimeUnit.DAYS);
+        return parent_cid;
+    }
+
 
     //抽取出来的方法 refactor/extract/method
     private List<CategoryEntity> getParent_cid(List<CategoryEntity> selectList, Long parent_cid) {
