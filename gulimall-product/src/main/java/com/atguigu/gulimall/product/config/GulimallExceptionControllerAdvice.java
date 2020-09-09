@@ -15,8 +15,6 @@ import java.util.Map;
  * 集中处理所有异常，处理校验错误。
  */
 @Slf4j
-//@ResponseBody
-//@ControllerAdvice(basePackages = "com.atguigu.gulimall.product.controller")
 @RestControllerAdvice(basePackages = "com.atguigu.gulimall.product.controller")
 public class GulimallExceptionControllerAdvice {
 

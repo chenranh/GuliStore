@@ -150,21 +150,30 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      *         },
      * @return
      */
+
+    //层级查询优化后的写法
+    //查出所有分类，按要求进行组装
     @Override
     public Map<String, List<Catelog2VO>> getCataLogJson() {
+        /**
+         * 1.将数据库的多次查询变为一次
+         */
+        List<CategoryEntity> selectList = baseMapper.selectList(null);
+
+
         //查出所有1级分类
-        List<CategoryEntity> level1List = getLevel1Category();
+        List<CategoryEntity> level1List = getParent_cid(selectList,0L);
         //封装数据,K是一级分类前面的数字
         Map<String, List<Catelog2VO>> parent_cid = level1List.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
-            //每一个的1级分类，查到这个1级分类的2级分类
-            List<CategoryEntity> categoryEntities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", v.getCatId()));
+            //每一个的1级分类，查到这个1级分类的2级分类，这里把循环查数据库优化
+            List<CategoryEntity> categoryEntities = getParent_cid(selectList,v.getCatId());
             //封装上面的结果
             List<Catelog2VO> catelog2Vos = null;
             if (categoryEntities != null) {
                 catelog2Vos = categoryEntities.stream().map(level2 -> {
                     Catelog2VO catelog2Vo = new Catelog2VO(v.getCatId().toString(),null , level2.getCatId().toString(), level2.getName());
-                    //找当前二级分类找三级分类封装成vo
-                    List<CategoryEntity> level3Catelog = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", level2.getCatId()));
+                    //找当前二级分类找三级分类封装成vo，这里把循环查数据库优化
+                    List<CategoryEntity> level3Catelog = getParent_cid(selectList,level2.getCatId());
                     if (level3Catelog!=null){
                         List<Catelog2VO.Catelog3VO> level3List = level3Catelog.stream().map(level3 -> {
                             //封装成指定格式
@@ -180,6 +189,45 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         }));
         return parent_cid;
     }
+
+    //抽取出来的方法 refactor/extract/method
+    private List<CategoryEntity> getParent_cid( List<CategoryEntity> selectList,Long parent_cid) {
+        //找到parent_cid是指定的
+        selectList.stream().filter(item->item.getParentCid()==parent_cid).collect(Collectors.toList());
+        //return baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", parent_cid));
+        return selectList;
+    }
+
+//    @Override
+//    public Map<String, List<Catelog2VO>> getCataLogJson() {
+//        //查出所有1级分类
+//        List<CategoryEntity> level1List = getLevel1Category();
+//        //封装数据,K是一级分类前面的数字
+//        Map<String, List<Catelog2VO>> parent_cid = level1List.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+//            //每一个的1级分类，查到这个1级分类的2级分类
+//            List<CategoryEntity> categoryEntities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", v.getCatId()));
+//            //封装上面的结果
+//            List<Catelog2VO> catelog2Vos = null;
+//            if (categoryEntities != null) {
+//                catelog2Vos = categoryEntities.stream().map(level2 -> {
+//                    Catelog2VO catelog2Vo = new Catelog2VO(v.getCatId().toString(),null , level2.getCatId().toString(), level2.getName());
+//                    //找当前二级分类找三级分类封装成vo
+//                    List<CategoryEntity> level3Catelog = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", level2.getCatId()));
+//                    if (level3Catelog!=null){
+//                        List<Catelog2VO.Catelog3VO> level3List = level3Catelog.stream().map(level3 -> {
+//                            //封装成指定格式
+//                            Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO(level2.getCatId().toString() ,level3.getCatId().toString(),level3.getName());
+//                            return catelog3VO;
+//                        }).collect(Collectors.toList());
+//                        catelog2Vo.setCatalog3List(level3List);
+//                    }
+//                    return catelog2Vo;
+//                }).collect(Collectors.toList());
+//            }
+//            return catelog2Vos;
+//        }));
+//        return parent_cid;
+//    }
 
     //225,25,2
     private List<Long> findParentPath(Long catelogId, List<Long> paths) {
