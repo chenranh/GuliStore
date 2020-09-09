@@ -10,7 +10,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -168,31 +167,22 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     //解决方案 1.升级lettuce客户端 2.切换使用jedis
     @Override
     public Map<String, List<Catelog2VO>> getCataLogJson() {
-        //给缓存中放json字符串，拿出的json字符串需要逆转成能用的对象类型
-
-        /**
-         * 空结果缓存，解决缓存穿透
-         * 设置过期时间，解决缓存雪崩
-         * 加锁 解决缓存击穿
-         */
+      //给缓存中放json字符串，拿出的json字符串需要逆转成能用的对象类型
 
         //加入缓存,缓存中存的是json字符串
         String catalogJson = redisTemplate.opsForValue().get("catalogJson");
 
         if (StrUtil.isEmpty(catalogJson)) {
             //缓存中没有
-            System.out.println("*****************缓存不命中 查询数据库*******************");
             Map<String, List<Catelog2VO>> cataLogJsonFromDb = getCataLogJsonFromDb();
             //查到的数据再放入缓存
-            //todo 如果数据库没有查到这个数据，可以把它设为false或者不为null的值放入redis，解决缓存穿透的问题
-            redisTemplate.opsForValue().set("catalogJson", JSON.toJSONString(cataLogJsonFromDb), 1, TimeUnit.DAYS);
+            redisTemplate.opsForValue().set("catalogJson", JSON.toJSONString(cataLogJsonFromDb));
 
             return getCataLogJsonFromDb();
         }
-        System.out.println("*****************缓存命中直接返回*******************");
+
         //转换成我们需要的类型,注意使用TypeReference （真好用！）
-        Map<String, List<Catelog2VO>> result = JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {
-        });
+        Map<String, List<Catelog2VO>> result = JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {});
 
         return result;
     }
@@ -202,57 +192,39 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     //查出所有分类，按要求进行组装
     //从数据库查询并封装数据
     public Map<String, List<Catelog2VO>> getCataLogJsonFromDb() {
+        /**
+         * 1.将数据库的多次查询变为一次
+         */
+        List<CategoryEntity> selectList = baseMapper.selectList(null);
 
-        //只要是同一把锁，就能锁住整个需要锁的所有线程
-        //本地锁只能锁住当前线程，分布式下需要分布式锁
-        //1.synchronized (this) springboot中所有的组件在容器中都是单例的
-        synchronized (this) {
-            //得到锁以后应该去缓存中再去确认一次，如果没有才需要继续查询
-            String catalogJson = redisTemplate.opsForValue().get("catalogJson");
-            if (StrUtil.isNotEmpty(catalogJson)) {
-                //如果缓存不为空直接返回
-                Map<String, List<Catelog2VO>> result = JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {
-                });
-                return result;
+
+        //查出所有1级分类
+        List<CategoryEntity> level1List = getParent_cid(selectList, 0L);
+        //封装数据,K是一级分类前面的数字
+        Map<String, List<Catelog2VO>> parent_cid = level1List.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            //每一个的1级分类，查到这个1级分类的2级分类，这里把循环查数据库优化
+            List<CategoryEntity> categoryEntities = getParent_cid(selectList, v.getCatId());
+            //封装上面的结果
+            List<Catelog2VO> catelog2Vos = null;
+            if (categoryEntities != null) {
+                catelog2Vos = categoryEntities.stream().map(level2 -> {
+                    Catelog2VO catelog2Vo = new Catelog2VO(v.getCatId().toString(), null, level2.getCatId().toString(), level2.getName());
+                    //找当前二级分类找三级分类封装成vo，这里把循环查数据库优化
+                    List<CategoryEntity> level3Catelog = getParent_cid(selectList, level2.getCatId());
+                    if (level3Catelog != null) {
+                        List<Catelog2VO.Catelog3VO> level3List = level3Catelog.stream().map(level3 -> {
+                            //封装成指定格式
+                            Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO(level2.getCatId().toString(), level3.getCatId().toString(), level3.getName());
+                            return catelog3VO;
+                        }).collect(Collectors.toList());
+                        catelog2Vo.setCatalog3List(level3List);
+                    }
+                    return catelog2Vo;
+                }).collect(Collectors.toList());
             }
-            System.out.println("*****************************查询了数据库************************************");
-
-            /**
-             * 1.将数据库的多次查询变为一次
-             */
-            List<CategoryEntity> selectList = baseMapper.selectList(null);
-
-
-            //查出所有1级分类
-            List<CategoryEntity> level1List = getParent_cid(selectList, 0L);
-            //封装数据,K是一级分类前面的数字
-            Map<String, List<Catelog2VO>> parent_cid = level1List.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
-                //每一个的1级分类，查到这个1级分类的2级分类，这里把循环查数据库优化
-                List<CategoryEntity> categoryEntities = getParent_cid(selectList, v.getCatId());
-                //封装上面的结果
-                List<Catelog2VO> catelog2Vos = null;
-                if (categoryEntities != null) {
-                    catelog2Vos = categoryEntities.stream().map(level2 -> {
-                        Catelog2VO catelog2Vo = new Catelog2VO(v.getCatId().toString(), null, level2.getCatId().toString(), level2.getName());
-                        //找当前二级分类找三级分类封装成vo，这里把循环查数据库优化
-                        List<CategoryEntity> level3Catelog = getParent_cid(selectList, level2.getCatId());
-                        if (level3Catelog != null) {
-                            List<Catelog2VO.Catelog3VO> level3List = level3Catelog.stream().map(level3 -> {
-                                //封装成指定格式
-                                Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO(level2.getCatId().toString(), level3.getCatId().toString(), level3.getName());
-                                return catelog3VO;
-                            }).collect(Collectors.toList());
-                            catelog2Vo.setCatalog3List(level3List);
-                        }
-                        return catelog2Vo;
-                    }).collect(Collectors.toList());
-                }
-                return catelog2Vos;
-            }));
-            return parent_cid;
-        }
-
-
+            return catelog2Vos;
+        }));
+        return parent_cid;
     }
 
     //抽取出来的方法 refactor/extract/method
