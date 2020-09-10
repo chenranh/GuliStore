@@ -5,6 +5,7 @@ import com.atguigu.gulimall.product.service.CategoryService;
 import com.atguigu.gulimall.product.vo.forwebvo.Catelog2VO;
 import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
+import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -114,6 +115,7 @@ public class IndexController {
         return s;
     }
 
+    //读锁
     @GetMapping("/read")
     @ResponseBody
     public String read() {
@@ -133,6 +135,35 @@ public class IndexController {
         }
 
         return vaule;
+    }
+
+    /**
+     * 信号量  可以用来做分布式限流
+     * 车库停车
+     * 3车位 来一辆车占用一个车位 想要停车需要看车位够不够
+     * @return
+     */
+    @GetMapping("/park")
+    @ResponseBody
+    public String park() throws InterruptedException {
+        RSemaphore park = redissonClient.getSemaphore("park");
+        park.acquire();//获取一个信号量 获取一个值 占一个车位  阻塞式获取 一定获取才停止加载
+        boolean b = park.tryAcquire(); //尝试获取
+        if(b){
+            //执行业务
+        }else {
+            System.out.println("当前人流量大 稍等一会再获取");
+        }
+        return "ok";
+    }
+
+    //减为0后，park.acquire（）才能获取到
+    @GetMapping("/go")
+    @ResponseBody
+    public String go() throws InterruptedException {
+        RSemaphore park = redissonClient.getSemaphore("park");
+        park.release();//释放一个车位
+        return "ok";
     }
 
 }
