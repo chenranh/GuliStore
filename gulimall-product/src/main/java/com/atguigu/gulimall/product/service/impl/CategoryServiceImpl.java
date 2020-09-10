@@ -141,16 +141,31 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     /**
      * 查询所有一级分类，web页面显示
      * 每一个需要的缓存都来指定放到那个名字下的缓存【缓存分区按照业务类型分区】
-     * 默认行为
+     * 1.默认行为
      * 1）.key 默认生成 缓存key的名字 category::SimpleKey[]
      * 2）.value 默认使用jdk序列化存入redis
      * 3）.默认过期时间永不过期
-     * 自定义
-     * 生成指定的key key属性指定 spe详细语法
-     * 指定生成过期的时间  配置文件修改ttl
-     * 存入json格式
+     * 2.自定义
+     * 1）生成指定的key key属性指定 spe详细语法
+     * 2）指定生成过期的时间  配置文件修改ttl
+     * 3）存入json格式
+     *
+     * 3.注解式缓存的不足
+     *  1）读模式：
+     *      缓存穿透：查询一个null数据 解决：缓存空数据；cache-null-value=true
+     *      缓存击穿：大量并发同时查询一个正好过期的数据。解决：加锁； 注解式缓存默认是没有加锁的,sync = true加锁 加的是本地锁
+     *      缓存雪崩：大量的key同时过期。解决：加随机时间。
+     *  2）写模式：缓存和数据库一致性
+     *      加读写锁
+     *      加canal 感知到mysql的更新去更新数据库
+     *      读多写多，直接去数据库查询就行
+     * 总结：
+     *      常规数据（读多写少，即时性，一致性要求不高的数据）完全可以使用spring-cache，写模式（只要缓存的数据有过期时间就足够了）
+     *      特殊数据：特殊设计 加canal
+     * 原理 ：
+     *      cacheManager（rediscachemanager）->cache（rediscache）->cache负责缓存的读写
      */
-    @Cacheable(value = "category", key = "#root.method.name")//还可以过滤指定条件加入缓存
+    @Cacheable(value = "category", key = "#root.method.name",sync = true)//还可以过滤指定条件加入缓存
     @Override
     public List<CategoryEntity> getLevel1Category() {
         System.out.println("方法调用了");
