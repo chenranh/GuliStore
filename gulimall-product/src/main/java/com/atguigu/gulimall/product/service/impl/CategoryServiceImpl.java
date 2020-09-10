@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
 import com.atguigu.gulimall.product.vo.forwebvo.Catelog2VO;
+import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -39,7 +40,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     @Autowired
     StringRedisTemplate redisTemplate;
 
-
+    @Autowired
+    RedissonClient redissonClient;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -117,6 +119,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     public void updateCascade(CategoryEntity category) {
         this.updateById(category);
         categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
+        //缓存保证的是最终一致性
+        //数据一致性解决方案，缓存所有数据都有过期时间，过期后下一次主动更新
+        //采用失效模式，加分布式读写锁
+        //1.todo 同时修改缓存中的数据
+        //2.todo 直接删除缓存中的数据 等待下次主动查询进行更新
     }
 
     /**
@@ -188,13 +195,14 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             System.out.println("*****************缓存不命中 查询数据库*******************");
             Map<String, List<Catelog2VO>> cataLogJsonFromDb = getCataLogJsonFromDbWithLocalLock();
             //查到的数据再放入缓存
-            //todo 如果数据库没有查到这个数据，可以把它设为false或者不为null的值放入redis，解决缓存穿透的问题
+            //todo 如果数据库没有查到这个数据，可以把它设为false或者不为null的值放入redis，带有过期时间，解决缓存穿透的问题
 
             return cataLogJsonFromDb;
         }
         System.out.println("*****************缓存命中直接返回*******************");
         //转换成我们需要的类型,注意使用TypeReference （真好用！）
-        Map<String, List<Catelog2VO>> result = JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {});
+        Map<String, List<Catelog2VO>> result = JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {
+        });
 
         return result;
     }
@@ -203,7 +211,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     //优化1 层级查询优化后的写法
     //查出所有分类，按要求进行组装
     //从数据库查询并封装数据
-    //使用本地锁
+    //进阶1 使用本地锁
     public Map<String, List<Catelog2VO>> getCataLogJsonFromDbWithLocalLock() {
 
         //只要是同一把锁，就能锁住整个需要锁的所有线程
@@ -254,7 +262,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             }));
             //查到的数据再放入到缓存，将对象转成json放在缓存中
             String s = JSON.toJSONString(parent_cid);
-            redisTemplate.opsForValue().set("catalogJSON", s, 1, TimeUnit.DAYS);
+            redisTemplate.opsForValue().set("catalogJson", s, 1, TimeUnit.DAYS);
             return parent_cid;
         }
 
@@ -262,7 +270,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
 
-    //使用分布式锁  核心加锁保证原子性 解锁保证原子性
+    //进阶2 使用分布式锁  核心加锁保证原子性 解锁保证原子性
     public Map<String, List<Catelog2VO>> getCataLogJsonFromDbWithRedisLock() {
 
         //占分布式锁。同时设置过期时间 去redis占坑
@@ -303,6 +311,35 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
 
     }
+
+
+    /**
+     * 进阶3 使用redisson锁
+     * 缓存里面的数据如何和数据库保持一致
+     * 缓存数据一致性
+     * 1.双写模式
+     * 2.失效模式
+     *
+     * @return
+     */
+    public Map<String, List<Catelog2VO>> getCataLogJsonFromDbWithRedissonLock() {
+        //1 占分布式锁 去redis占坑。锁的粒度 越细越快
+        //锁的粒度 具体缓存的是某个数据 11号商品  product-11-lock  product-12-lock
+        RLock lock = redissonClient.getLock("CataLogJson-lock");
+        lock.lock();
+
+        Map<String, List<Catelog2VO>> dataFromDb;
+        try {
+            dataFromDb = getDataFromDb();
+        } finally {
+            lock.unlock();
+        }
+
+        return dataFromDb;
+
+
+    }
+
 
     private Map<String, List<Catelog2VO>> getDataFromDb() {
         String catalogJson = redisTemplate.opsForValue().get("catalogJson");
@@ -347,7 +384,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         }));
         //查到的数据再放入到缓存，将对象转成json放在缓存中
         String s = JSON.toJSONString(parent_cid);
-        redisTemplate.opsForValue().set("catalogJSON", s, 1, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set("catalogJson", s, 1, TimeUnit.DAYS);
         return parent_cid;
     }
 
