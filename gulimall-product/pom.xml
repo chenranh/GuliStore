@@ -21,6 +21,13 @@
 
     <dependencies>
 
+
+<!--        注解式缓存-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
 <!--oss文件存储-->
 <!--        <dependency>-->
 <!--            <groupId>com.aliyun.oss</groupId>-->
@@ -28,7 +35,7 @@
 <!--            <version>3.10.2</version>-->
 <!--        </dependency>-->
 
-
+<!--引入redis-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>

@@ -8,6 +8,9 @@ import com.atguigu.gulimall.product.vo.forwebvo.Catelog2VO;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -111,9 +114,18 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     /**
      * 级联更新所有关联的数据
+     *删除缓存
+     * key常规字符串加上单引号
+     * 1.@CacheEvict(value = "category", key = "'getLevel1Category'") 缓存一致性的失效模式
+     * 2.@Caching(evict = {
+     *             @CacheEvict(value = "category", key = "'getLevel1Category'"),
+     *             @CacheEvict(value = "category", key = "'getCataLogJson'")
+     *     })
+     * 3.删除缓存分区 vaule区   @CacheEvict(value = "category",allEntries = true)
      *
-     * @param category
+     * 同一个类型的数据都可以指定成同一个分区 分区名默认就是缓存的前缀
      */
+    @CacheEvict(value = "category",allEntries = true)
     @Transactional
     @Override
     public void updateCascade(CategoryEntity category) {
@@ -121,18 +133,27 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
         //缓存保证的是最终一致性
         //数据一致性解决方案，缓存所有数据都有过期时间，过期后下一次主动更新
-        //采用失效模式，加分布式读写锁
+        //采用失效模式，加分布式读写锁  本项目选择直接删除缓存中的数据
         //1.todo 同时修改缓存中的数据
         //2.todo 直接删除缓存中的数据 等待下次主动查询进行更新
     }
 
     /**
      * 查询所有一级分类，web页面显示
-     *
-     * @return
+     * 每一个需要的缓存都来指定放到那个名字下的缓存【缓存分区按照业务类型分区】
+     * 默认行为
+     * 1）.key 默认生成 缓存key的名字 category::SimpleKey[]
+     * 2）.value 默认使用jdk序列化存入redis
+     * 3）.默认过期时间永不过期
+     * 自定义
+     * 生成指定的key key属性指定 spe详细语法
+     * 指定生成过期的时间  配置文件修改ttl
+     * 存入json格式
      */
+    @Cacheable(value = "category", key = "#root.method.name")//还可以过滤指定条件加入缓存
     @Override
     public List<CategoryEntity> getLevel1Category() {
+        System.out.println("方法调用了");
         List<CategoryEntity> categoryEntities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
 
         return categoryEntities;
@@ -173,12 +194,51 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      */
 
 
+    //查询三级菜单使用注解式缓存优化
+    @Override
+    @Cacheable(value = "category", key = "#root.methodName")
+    public Map<String, List<Catelog2VO>> getCataLogJson() {
+        System.out.println("查询数据库");
+        /**
+         * 1.将数据库的多次查询变为一次
+         */
+        List<CategoryEntity> selectList = baseMapper.selectList(null);
+
+        //查出所有1级分类
+        List<CategoryEntity> level1List = getParent_cid(selectList, 0L);
+        //封装数据,K是一级分类前面的数字
+        Map<String, List<Catelog2VO>> parent_cid = level1List.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            //每一个的1级分类，查到这个1级分类的2级分类，这里把循环查数据库优化
+            List<CategoryEntity> categoryEntities = getParent_cid(selectList, v.getCatId());
+            //封装上面的结果
+            List<Catelog2VO> catelog2Vos = null;
+            if (categoryEntities != null) {
+                catelog2Vos = categoryEntities.stream().map(level2 -> {
+                    Catelog2VO catelog2Vo = new Catelog2VO(v.getCatId().toString(), null, level2.getCatId().toString(), level2.getName());
+                    //找当前二级分类找三级分类封装成vo，这里把循环查数据库优化
+                    List<CategoryEntity> level3Catelog = getParent_cid(selectList, level2.getCatId());
+                    if (level3Catelog != null) {
+                        List<Catelog2VO.Catelog3VO> level3List = level3Catelog.stream().map(level3 -> {
+                            //封装成指定格式
+                            Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO(level2.getCatId().toString(), level3.getCatId().toString(), level3.getName());
+                            return catelog3VO;
+                        }).collect(Collectors.toList());
+                        catelog2Vo.setCatalog3List(level3List);
+                    }
+                    return catelog2Vo;
+                }).collect(Collectors.toList());
+            }
+            return catelog2Vos;
+        }));
+        return parent_cid;
+    }
+
     //todo 堆外内存溢出
     //springboot2.0以后会默认使用lettuce作为操作redis客户端
     //lettuce的bug导致的堆外内存溢出
     //解决方案 1.升级lettuce客户端 2.切换使用jedis
-    @Override
-    public Map<String, List<Catelog2VO>> getCataLogJson() {
+    //@Override
+    public Map<String, List<Catelog2VO>> getCataLogJson2() {
         //给缓存中放json字符串，拿出的json字符串需要逆转成能用的对象类型
 
         /**
@@ -428,7 +488,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 //        return parent_cid;
 //    }
 
-    //225,25,2
+    //225,25,2 递归查询
     private List<Long> findParentPath(Long catelogId, List<Long> paths) {
         //1、收集当前节点id
         paths.add(catelogId);

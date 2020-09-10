@@ -2,6 +2,7 @@ package com.atguigu.gulimall.product;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
@@ -57,6 +58,28 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * 使用配置好的stringRedistemplate来操作redis
  *
  * 7.整合redisson作为分布式锁等功能框架
+ *
+ * 8.整合缓存注解
+ *   1)引入依赖 注解式缓存依赖和redis缓存依赖
+ *   2）写配置
+ *      （1）自动配置
+ *          cacheautoconfiguration会导入rediscacheconfiguration
+ *      （2） 需要配置的文件  配置使用redis作为缓存
+ *
+ *   3)测试使用缓存
+ *      Cacheable: 触发将数据保存到缓存的操作
+ *      CacheEvict: 触发将数据从缓存中删除的操作
+ *      CachePut: 在不影响方法执行的情况下更新缓存。缓存一致性的双写模式 前提是得有返回值
+ *      Caching:  组合以上多个操作
+ *      CacheConfig: 在类级别上共享一些公共的与缓存相关的设置。
+ *      1.开启缓存功能
+ *      2.使用注解
+ *   4)原理
+ *      cacheautoconfiguration->rediscachecongifuration
+ *      自动配置了rediscachemanager->初始化所有缓存 每个缓存决定使用什么配置
+ *      ->如果rediscacheconfiguration有就用已有的 没有就用默认配置的
+ *      想去改缓存的配置，只需要给容器中放一个redisconfiguration即可
+ *      就会应用到当前rediscachemanager管理的
  */
 @SpringBootApplication
 @EnableDiscoveryClient
