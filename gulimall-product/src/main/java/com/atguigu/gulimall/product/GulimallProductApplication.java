@@ -1,6 +1,5 @@
 package com.atguigu.gulimall.product;
 
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -56,6 +55,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * 引入data-spring-redis
  * 简单配置redis的host等信息
  * 使用配置好的stringRedistemplate来操作redis
+ *
+ * 7.整合redisson作为分布式锁等功能框架
  */
 @SpringBootApplication
 @EnableDiscoveryClient

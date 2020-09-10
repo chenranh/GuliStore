@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
 import com.atguigu.gulimall.product.vo.forwebvo.Catelog2VO;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -37,6 +38,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Autowired
     StringRedisTemplate redisTemplate;
+
+
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -186,14 +189,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             Map<String, List<Catelog2VO>> cataLogJsonFromDb = getCataLogJsonFromDbWithLocalLock();
             //查到的数据再放入缓存
             //todo 如果数据库没有查到这个数据，可以把它设为false或者不为null的值放入redis，解决缓存穿透的问题
-            redisTemplate.opsForValue().set("catalogJson", JSON.toJSONString(cataLogJsonFromDb), 1, TimeUnit.DAYS);
 
-            return getCataLogJsonFromDbWithLocalLock();
+            return cataLogJsonFromDb;
         }
         System.out.println("*****************缓存命中直接返回*******************");
         //转换成我们需要的类型,注意使用TypeReference （真好用！）
-        Map<String, List<Catelog2VO>> result = JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {
-        });
+        Map<String, List<Catelog2VO>> result = JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {});
 
         return result;
     }
@@ -351,7 +352,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
 
-    //抽取出来的方法 refactor/extract/method
+    //抽取出来的方法，根据父id过滤对象 refactor/extract/method
     private List<CategoryEntity> getParent_cid(List<CategoryEntity> selectList, Long parent_cid) {
         //找到parent_cid是指定的
         List<CategoryEntity> collect = selectList.stream().filter(item -> item.getParentCid().equals(parent_cid)).collect(Collectors.toList());
