@@ -4,8 +4,10 @@ import com.atguigu.gulimall.product.entity.CategoryEntity;
 import com.atguigu.gulimall.product.service.CategoryService;
 import com.atguigu.gulimall.product.vo.forwebvo.Catelog2VO;
 import org.redisson.api.RLock;
+import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,6 +31,9 @@ public class IndexController {
 
     @Autowired
     RedissonClient redissonClient;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @GetMapping({"/", "index.html"})
     public String indexPage(Model model) {
@@ -61,8 +67,8 @@ public class IndexController {
 
         //1.如果传递了锁的超时时间，就发送给redis执行脚本进行占锁，默认超时就是我们指定的时间
         //2.未指定锁的超时时间，就使用30*1000 lockwatchdogtimeout看门狗的默认时间，
-          //2.1 只要占锁成功就会启动一个定时任务，重新给锁设置一个过期时间。新的过期时间就是看门狗的默认时间
-          //2.2 业务在执行 看门狗会一直续期 lockwatchdogtimeout/3 每隔10秒再次续期成满时间30秒
+        //2.1 只要占锁成功就会启动一个定时任务，重新给锁设置一个过期时间。新的过期时间就是看门狗的默认时间
+        //2.2 业务在执行 看门狗会一直续期 lockwatchdogtimeout/3 每隔10秒再次续期成满时间30秒
         lock.lock(10, TimeUnit.SECONDS);//10秒后自动解锁，自动解锁时间一定要大于业务的执行时间，锁过期后不会自动续期
         //1.锁的自动续期  如果业务超长，运行期间自动给锁续到新的30秒，不用担心业务时间长，锁自动过期被删掉
         //2.加锁的业务只要运行完成，就不会给当前锁续期。即使不手动解锁。锁默认在30s以后自动删除
@@ -81,6 +87,52 @@ public class IndexController {
             lock.unlock();
         }
         return "hello";
+    }
+
+
+    //测试redisson读写锁
+    //写锁还没完成 读就读不出来，写锁与写锁之间不冲突
+    //保证一定能读到最新的数据，修改期间是一个排他锁。读锁是一个共享锁
+    @GetMapping("/write")
+    @ResponseBody
+    public String write() {
+        RReadWriteLock lock = redissonClient.getReadWriteLock("rw-lock");
+        String s = "";
+        RLock rLock = lock.writeLock();
+        try {
+            //改数据加写锁，读数据加读锁
+            rLock.lock();
+            s = UUID.randomUUID().toString();
+            Thread.sleep(3000);
+            redisTemplate.opsForValue().set("writeVaule", s);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }finally {
+            //业务代码结束释放锁
+            rLock.unlock();
+        }
+        return s;
+    }
+
+    @GetMapping("/read")
+    @ResponseBody
+    public String read() {
+        RReadWriteLock lock = redissonClient.getReadWriteLock("rw-lock");
+        String vaule = "";
+        //加读锁
+        RLock rLock = lock.readLock();
+        rLock.lock();
+
+        try {
+            vaule = (String) redisTemplate.opsForValue().get("writeVaule");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            //释放锁
+            rLock.unlock();
+        }
+
+        return vaule;
     }
 
 }
