@@ -160,8 +160,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      *      加canal 感知到mysql的更新去更新数据库
      *      读多写多，直接去数据库查询就行
      * 总结：
-     *      常规数据（读多写少，即时性，一致性要求不高的数据）完全可以使用spring-cache，写模式（只要缓存的数据有过期时间就足够了）
-     *      特殊数据：特殊设计 加canal
+     *      常规数据（读多写少，即时性，一致性要求不高的数据）完全可以使用spring-cache；写模式（只要缓存的数据有过期时间就足够了）
+     *      特殊数据：特殊设计 加canal，读写锁等
      * 原理 ：
      *      cacheManager（rediscachemanager）->cache（rediscache）->cache负责缓存的读写
      */
