@@ -286,7 +286,12 @@ public class MallSearchServiceImpl implements MallSearchService {
         //7、 分页信息-总页码
         int totalPage = (int) (total % EsConstant.PRODUCT_PAGESIZE == 0 ? total / EsConstant.PRODUCT_PAGESIZE : (total / EsConstant.PRODUCT_PAGESIZE + 1));
         result.setTotalPages(totalPage);
-
+        //导航页
+        ArrayList<Integer> pageNavs = new ArrayList<>();
+        for(int i=1;i<=totalPage;i++){
+            pageNavs.add(i);
+        }
+        result.setPageNavs(pageNavs);
         return result;
     }
 }

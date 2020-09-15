@@ -16,6 +16,8 @@ public class SearchResult {
 
     private Integer totalPages; //总页码
 
+    private List<Integer> pageNavs; //导航页码
+
     public List<BrandVo> brands; //当前查询的结果，所有涉及到的品牌
     public List<CatelogVo> catelogs;  //
     public List<AttrVo> attrs;  //当前查询的结果  所有涉及到的所有属性
