@@ -48,6 +48,7 @@ public class IndexController {
     }
 
     //index/catalog.json
+    //获取三级分类数据
     @ResponseBody
     @GetMapping("index/catelog.json")
     public Map<String, List<Catelog2VO>> getCataLogJson() {
