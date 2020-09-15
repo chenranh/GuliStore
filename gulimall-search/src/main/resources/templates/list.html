@@ -779,7 +779,7 @@
                 <!--品牌-->
                 <div class="JD_nav_wrap">
                     <div class="sl_key">
-                        <span>品牌：</span>
+                        <span><b>品牌：</b></span>
                     </div>
                     <div class="sl_value">
                         <div class="sl_value_logo">
@@ -811,23 +811,60 @@
                 </div>
 
 
-<!--                &lt;!&ndash;其他的所有需要展示的属性&ndash;&gt;-->
-<!--                <div class="JD_pre">-->
-<!--                    <div class="sl_key">-->
-<!--                        <span th:text="${attr.attrName}">分类：</span>-->
-<!--                    </div>-->
-<!--                    <div class="sl_value">-->
-<!--                        <ul>-->
-<!--                            <li th:each="catelog:${result.catelogs}">-->
-<!--                                <a href="#"-->
-<!--                                   th:href="${'javascript:searchProduct(&quot;catelog3Id&quot;,'+catelog.catelogId+')'}"-->
-<!--                                   th:text="${catelog.catelogName}"></a>-->
-<!--                            </li>-->
-<!--                        </ul>-->
-<!--                    </div>-->
-<!--                </div>-->
+                <!--分类-->
+                <div class="JD_pre">
+                    <div class="sl_key">
+                        <span><b>分类：</b></span>
+                    </div>
+                    <div class="sl_value">
+                        <ul>
+                            <li th:each="catelog:${result.catelogs}">
+                                <a href="#"
+                                   th:text="${catelog.catelogName}">5.6英寸及以上</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="sl_ext">
+                        <a href="#">
+                            更多
+                            <i style='background: url("/image/search.ele.png")no-repeat 3px 7px'></i>
+                            <b style='background: url("/image/search.ele.png")no-repeat 3px -44px'></b>
+                        </a>
+                        <a href="#">
+                            多选
+                            <i>+</i>
+                            <span>+</span>
+                        </a>
+                    </div>
 
-<!--            </div>-->
+                    <!--其他的所有需要展示的属性-->
+                    <div class="JD_pre" th:each="attr:${result.attrs}">
+                        <div class="sl_key">
+                            <span th:text="${attr.attrName}">屏幕尺寸：</span>
+                        </div>
+                        <div class="sl_value">
+                            <ul>
+                                <li th:each="val:${attr.attrValue}">
+                                    <a href="#"
+                                       th:text="${val}">5.56英寸及以上</a></li>
+                            </ul>
+                        </div>
+                        <div class="sl_ext">
+                            <a href="#">
+                                更多
+                                <i style='background: url("/image/search.ele.png")no-repeat 3px 7px'></i>
+                                <b style='background: url("/image/search.ele.png")no-repeat 3px -44px'></b>
+                            </a>
+                            <a href="#">
+                                多选
+                                <i>+</i>
+                                <span>+</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
             <div class="JD_show">
                 <a href="#">
                     <span>

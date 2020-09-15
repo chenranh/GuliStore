@@ -30,7 +30,7 @@ public class SearchParm {
      * brandId=1
      * attrs=2_5寸：6寸
      */
-    private Integer hasStock=1;  //是否有货  0无库存 1有库存
+    private Integer hasStock;  //是否有货  0无库存 1有库存
     private String skuPrice;  //价格区间
     private List<Long> brandId;  //按照品牌id进行筛选
 
