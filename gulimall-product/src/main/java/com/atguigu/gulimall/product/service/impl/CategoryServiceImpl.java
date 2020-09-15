@@ -178,27 +178,27 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * 查出所有分类，按要求进行组装
      * "1":[
      * {
-     * "catalog1Id":"1",
+     * "catelog1Id":"1",
      * "id":"1",
      * "name":"电子书刊",
-     * "catalog3List":[
+     * "catelog3List":[
      * {
-     * "catalog2Id":"1",
+     * "catelog2Id":"1",
      * "id":"1",
      * "name":"电子书"
      * },
      * {
-     * "catalog2Id":"1",
+     * "catelog2Id":"1",
      * "id":"2",
      * "name":"网络原创"
      * },
      * {
-     * "catalog2Id":"1",
+     * "catelog2Id":"1",
      * "id":"3",
      * "name":"数字杂志"
      * },
      * {
-     * "catalog2Id":"1",
+     * "catelog2Id":"1",
      * "id":"4",
      * "name":"多媒体图书"
      * }
@@ -238,7 +238,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                             Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO(level2.getCatId().toString(), level3.getCatId().toString(), level3.getName());
                             return catelog3VO;
                         }).collect(Collectors.toList());
-                        catelog2Vo.setCatalog3List(level3List);
+                        catelog2Vo.setCatelog3List(level3List);
                     }
                     return catelog2Vo;
                 }).collect(Collectors.toList());
@@ -263,9 +263,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
          */
 
         //加入缓存,缓存中存的是json字符串
-        String catalogJson = redisTemplate.opsForValue().get("catalogJson");
+        String catelogJson = redisTemplate.opsForValue().get("catelogJson");
 
-        if (StrUtil.isEmpty(catalogJson)) {
+        if (StrUtil.isEmpty(catelogJson)) {
             //缓存中没有
             System.out.println("*****************缓存不命中 查询数据库*******************");
             Map<String, List<Catelog2VO>> cataLogJsonFromDb = getCataLogJsonFromDbWithLocalLock();
@@ -276,7 +276,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         }
         System.out.println("*****************缓存命中直接返回*******************");
         //转换成我们需要的类型,注意使用TypeReference （真好用！）
-        Map<String, List<Catelog2VO>> result = JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {
+        Map<String, List<Catelog2VO>> result = JSON.parseObject(catelogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {
         });
 
         return result;
@@ -294,10 +294,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         //1.synchronized (this) springboot中所有的组件在容器中都是单例的
         synchronized (this) {
             //得到锁以后应该去缓存中再去确认一次，如果没有才需要继续查询
-            String catalogJson = redisTemplate.opsForValue().get("catalogJson");
-            if (StrUtil.isNotEmpty(catalogJson)) {
+            String catelogJson = redisTemplate.opsForValue().get("catelogJson");
+            if (StrUtil.isNotEmpty(catelogJson)) {
                 //如果缓存不为空直接返回
-                Map<String, List<Catelog2VO>> result = JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {
+                Map<String, List<Catelog2VO>> result = JSON.parseObject(catelogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {
                 });
                 return result;
             }
@@ -328,7 +328,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                                 Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO(level2.getCatId().toString(), level3.getCatId().toString(), level3.getName());
                                 return catelog3VO;
                             }).collect(Collectors.toList());
-                            catelog2Vo.setCatalog3List(level3List);
+                            catelog2Vo.setCatelog3List(level3List);
                         }
                         return catelog2Vo;
                     }).collect(Collectors.toList());
@@ -337,7 +337,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             }));
             //查到的数据再放入到缓存，将对象转成json放在缓存中
             String s = JSON.toJSONString(parent_cid);
-            redisTemplate.opsForValue().set("catalogJson", s, 1, TimeUnit.DAYS);
+            redisTemplate.opsForValue().set("catelogJson", s, 1, TimeUnit.DAYS);
             return parent_cid;
         }
 
@@ -417,10 +417,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
 
     private Map<String, List<Catelog2VO>> getDataFromDb() {
-        String catalogJson = redisTemplate.opsForValue().get("catalogJson");
-        if (StrUtil.isNotEmpty(catalogJson)) {
+        String catelogJson = redisTemplate.opsForValue().get("catelogJson");
+        if (StrUtil.isNotEmpty(catelogJson)) {
             //如果缓存不为空直接返回
-            Map<String, List<Catelog2VO>> result = JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {
+            Map<String, List<Catelog2VO>> result = JSON.parseObject(catelogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {
             });
             return result;
         }
@@ -450,7 +450,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                             Catelog2VO.Catelog3VO catelog3VO = new Catelog2VO.Catelog3VO(level2.getCatId().toString(), level3.getCatId().toString(), level3.getName());
                             return catelog3VO;
                         }).collect(Collectors.toList());
-                        catelog2Vo.setCatalog3List(level3List);
+                        catelog2Vo.setCatelog3List(level3List);
                     }
                     return catelog2Vo;
                 }).collect(Collectors.toList());
@@ -459,7 +459,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         }));
         //查到的数据再放入到缓存，将对象转成json放在缓存中
         String s = JSON.toJSONString(parent_cid);
-        redisTemplate.opsForValue().set("catalogJson", s, 1, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set("catelogJson", s, 1, TimeUnit.DAYS);
         return parent_cid;
     }
 
