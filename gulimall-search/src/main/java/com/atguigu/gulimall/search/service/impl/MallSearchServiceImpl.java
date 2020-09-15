@@ -2,10 +2,15 @@ package com.atguigu.gulimall.search.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.to.es.SkuEsModel;
+import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.search.config.GulimallElasticSearchConfig;
 import com.atguigu.gulimall.search.constant.EsConstant;
+import com.atguigu.gulimall.search.feign.ProductFeignService;
 import com.atguigu.gulimall.search.service.MallSearchService;
+import com.atguigu.gulimall.search.vo.AttrResponseVo;
+import com.atguigu.gulimall.search.vo.BrandVo;
 import com.atguigu.gulimall.search.vo.SearchParm;
 import com.atguigu.gulimall.search.vo.SearchResult;
 import org.apache.lucene.search.join.ScoreMode;
@@ -33,6 +38,8 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,6 +49,9 @@ public class MallSearchServiceImpl implements MallSearchService {
 
     @Resource
     private RestHighLevelClient client;
+
+    @Resource
+    ProductFeignService productFeignService;
 
     //去es进行检索
     @Override
@@ -292,6 +302,67 @@ public class MallSearchServiceImpl implements MallSearchService {
             pageNavs.add(i);
         }
         result.setPageNavs(pageNavs);
+
+        // 6.构建面包屑导航功能
+        if(parm.getAttrs() != null&&parm.getAttrs().size()>0){
+            List<SearchResult.NavVo> navVos = parm.getAttrs().stream().map(attr -> {
+                SearchResult.NavVo navVo = new SearchResult.NavVo();
+                String[] s = attr.split("_");
+                navVo.setNavValue(s[1]);
+                R r = productFeignService.attrInfo(Long.parseLong(s[0]));
+                // 将已选择的请求参数添加进去 前端页面进行排除
+                result.getAttrIds().add(Long.parseLong(s[0]));
+                if(r.getCode() == 0){
+                    AttrResponseVo data = r.getData("attr",new TypeReference<AttrResponseVo>(){});
+                    navVo.setName(data.getAttrName());
+                }else{
+                    // 失败了就拿id作为名字
+                    navVo.setName(s[0]);
+                }
+                // 拿到所有查询条件 替换查询条件
+                String replace = replaceQueryString(parm, attr, "attrs");
+                navVo.setLink("http://search.gulimall.com/list.html?" + replace);
+                return navVo;
+            }).collect(Collectors.toList());
+            result.setNavs(navVos);
+        }
+        // 品牌、分类
+        if(parm.getBrandId() != null && parm.getBrandId().size() > 0){
+            List<SearchResult.NavVo> navs = result.getNavs();
+            SearchResult.NavVo navVo = new SearchResult.NavVo();
+            navVo.setName("品牌");
+            // TODO 远程查询所有品牌
+            R r = productFeignService.brandInfo(parm.getBrandId());
+            if(r.getCode() == 0){
+                List<BrandVo> brand = r.getData("brand", new TypeReference<List<BrandVo>>() {});
+                StringBuffer buffer = new StringBuffer();
+                // 替换所有品牌ID
+                String replace = "";
+                for (BrandVo brandVo : brand) {
+                    buffer.append(brandVo.getBrandName() + ";");
+                    replace = replaceQueryString(parm, brandVo.getBrandId() + "", "brandId");
+                }
+                navVo.setNavValue(buffer.toString());
+                navVo.setLink("http://search.gulimall.com/list.html?" + replace);
+            }
+            navs.add(navVo);
+        }
         return result;
+    }
+    /**
+     * 替换字符
+     * key ：需要替换的key
+     */
+    private String replaceQueryString(SearchParm parm, String value, String key) {
+        String encode = null;
+        try {
+            encode = URLEncoder.encode(value,"UTF-8");
+            // 浏览器对空格的编码和java的不一样
+            encode = encode.replace("+","%20");
+            encode = encode.replace("%28", "(").replace("%29",")");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return parm.get_queryString().replace("&" + key + "=" + encode, "");
     }
 }

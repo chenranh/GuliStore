@@ -25,6 +25,22 @@ import java.util.Map;
 public class R extends HashMap<String, Object> {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 *
+	 * @param key 获取指定key的名字
+	 * @param typeReference
+	 * @param <T>
+	 * @return
+	 */
+	public <T> T getData(String key,TypeReference<T> typeReference){
+		// get("data") 默认是map类型 所以再由map转成string再转json
+		Object data = get(key);
+		return JSON.parseObject(JSON.toJSONString(data),typeReference);
+	}
+
+
+
+
 
 	//逆转，返回值是泛型
 	public <T> T getData(TypeReference<T> typeReference) {
