@@ -1,7 +1,6 @@
 package com.atguigu.gulimall.product.thread;
 
 
-
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -42,9 +41,9 @@ public class ThreadTest2 {
             int i = 20 / 2;
             System.out.println("运行结果" + i);
             return i;
-        }, executor).whenComplete((result,exception)->{
+        }, executor).whenComplete((result, exception) -> {
             //whenComplete虽然能得到异常信息，但是无法修改返回数据
-            System.out.println("异步任务完成了--结果是："+result+";异常是："+exception);
+            System.out.println("异步任务完成了--结果是：" + result + ";异常是：" + exception);
             //R apply(T t)  exceptionally()的参数是抛出来的异常
         }).exceptionally(throwable -> {
             //exceptionally可以感知异常，同时返回默认值
@@ -60,18 +59,18 @@ public class ThreadTest2 {
             System.out.println("运行结果" + i);
             return i;
             // R apply(T t, U u); u是异常参数
-        }, executor).handle((res,thr)->{
-            if (res!=null){
-                return res*2;
+        }, executor).handle((res, thr) -> {
+            if (res != null) {
+                return res * 2;
             }
             //表示有异常
-            if (thr!=null){
+            if (thr != null) {
                 return 0;
             }
             return res;
         });
 
         Integer i = future.get();
-        System.out.println("main---end---"+i);
+        System.out.println("main---end---" + i);
     }
 }

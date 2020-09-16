@@ -25,30 +25,30 @@ public class ThreadTest {
 
     /**
      * 1.继承thread
-     *      Thread01 thread01=new Thread01();
-     *         thread01.start(); //启动线程
+     * Thread01 thread01=new Thread01();
+     * thread01.start(); //启动线程
      * 2.实现runnable接口
-     *      Runable01 runable01 = new Runable01();
-     *         new Thread(runable01).start(); //启动线程
+     * Runable01 runable01 = new Runable01();
+     * new Thread(runable01).start(); //启动线程
      * 3.实现callable接口+funturetask 可以拿到返回结果 可以处理异常
-     *  阻塞等待整个线程执行完成，获取返回结果
-     *     FutureTask<Integer> futureTask = new FutureTask<>(new Callable01());
-     *          new Thread(futureTask).start(); //启动线程
+     * 阻塞等待整个线程执行完成，获取返回结果
+     * FutureTask<Integer> futureTask = new FutureTask<>(new Callable01());
+     * new Thread(futureTask).start(); //启动线程
      * 4. 线程池
-     *       给线程池直接提交任务
-     *       service.execute(new Runable01());
-     *       1.创建
-     *         1）juc包下 exectors 最快创建方式 Executors.newFixedThreadPool(10);
-     *         2） new ThreadPoolExecutor();
-     *
-     *
-     *
+     * 给线程池直接提交任务
+     * service.execute(new Runable01());
+     * 1.创建
+     * 1）juc包下 exectors 最快创建方式 Executors.newFixedThreadPool(10);
+     * 2） new ThreadPoolExecutor();
+     * <p>
+     * <p>
+     * <p>
      * 区别：
-     *  1、2不能得到返回值，3可以获取返回值
-     *  1、2、3都不能控制资源  只能通过new Thread占用系统内存
-     *  4、可以控制资源  直接初始化10个线程 资源循环使用 资源稳定不会因为高并发导致资源耗尽的问题
-     *
-     *
+     * 1、2不能得到返回值，3可以获取返回值
+     * 1、2、3都不能控制资源  只能通过new Thread占用系统内存
+     * 4、可以控制资源  直接初始化10个线程 资源循环使用 资源稳定不会因为高并发导致资源耗尽的问题
+     * <p>
+     * <p>
      * 问：为什么需要创建线程池？频繁创建线程会很占用系统资源
      */
     public static void main(String[] args) throws ExecutionException, InterruptedException {
@@ -73,7 +73,6 @@ public class ThreadTest {
         Executors.newScheduledThreadPool(10);
         //单线程的线程池，后台从队列中获取任务，挨个执行，只有一个核心线程
         Executors.newSingleThreadExecutor();
-
 
 
         //2.通过new ThreadPoolExecutor()创建线程池
