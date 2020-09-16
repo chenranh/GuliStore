@@ -34,6 +34,9 @@ public class ThreadTest2 {
 
         //Supplier的get方法不接受入参（读不懂看底层），所以() ->里没有入参，supplyAsync有返回值
         //whenComplete有带async和不带async，不带就是在当前线程继续执行，带了会重新整一个线程进行处理
+        /**
+         * 方法执行完成后的感知
+         */
         CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
             System.out.println("当前线程" + Thread.currentThread().getId());
             int i = 20 / 2;
@@ -47,6 +50,27 @@ public class ThreadTest2 {
             //exceptionally可以感知异常，同时返回默认值
             return 10;
         });
+
+        /**
+         * handle()方法 执行完成后的处理
+         */
+        CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> {
+            System.out.println("当前线程" + Thread.currentThread().getId());
+            int i = 20 / 2;
+            System.out.println("运行结果" + i);
+            return i;
+            // R apply(T t, U u); u是异常参数
+        }, executor).handle((res,thr)->{
+            if (res!=null){
+                return res*2;
+            }
+            //表示有异常
+            if (thr!=null){
+                return 0;
+            }
+            return res;
+        });
+
         Integer i = future.get();
         System.out.println("main---end---"+i);
     }
