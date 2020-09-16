@@ -59,8 +59,8 @@ public class ThreadTest {
 
         //当前系统中池只有一两个，每个异步任务提交给线程池让他自己去执行就行
         //1.通过Executors.newFixedThreadPool创建线程池   Executors在juc包下
-        ExecutorService service = Executors.newFixedThreadPool(10);
-        service.execute(new Runable01());
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        executor.execute(new Runable01());
 
         /**
          * Executors的其他几种创建方式
