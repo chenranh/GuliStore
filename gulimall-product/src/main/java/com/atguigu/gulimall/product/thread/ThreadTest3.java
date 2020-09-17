@@ -19,7 +19,9 @@ public class ThreadTest3 {
          *             System.out.println("任务2启动了");
          *         }, executor);
          *
-         *  2）.thenAccept能接受上一步结果，但是无返回值
+         *  2）.thenAccept 能接受上一步结果，但是无返回值
+         *
+         *  3）.thenAccept 能接受上一步结果，有返回值
          */
         CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
             System.out.println("当前线程" + Thread.currentThread().getId());
@@ -52,7 +54,7 @@ public class ThreadTest3 {
             int i = 20 / 2;
             System.out.println("运行结果" + i);
             return i;
-            //res是上一个线程的返回结果 thenAccept能接受上一步结果，但是无返回值
+            //res是上一个线程的返回结果 thenApply能接受上一步结果，有返回值 "hello" + res
         }, executor).thenApplyAsync(res -> {
             System.out.println("任务2启动了" + res);
 
