@@ -24,11 +24,11 @@ public class ThreadTest2 {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         System.out.println("main---start");
         //第一个参数直接是异步内容，相当于之前run方法里的代码,没有返回值
-//        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-//            System.out.println("当前线程" + Thread.currentThread().getId());
-//            int i = 10 / 2;
-//            System.out.println("运行结果" + i);
-//        }, executor);
+        CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
+            System.out.println("当前线程" + Thread.currentThread().getId());
+            int i = 10 / 2;
+            System.out.println("运行结果" + i);
+        }, executor);
 
 
         //Supplier的get方法不接受入参（读不懂看底层），所以() ->里没有入参，supplyAsync有返回值
@@ -36,7 +36,7 @@ public class ThreadTest2 {
         /**
          * 方法执行完成后的感知
          */
-        CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> {
             System.out.println("当前线程" + Thread.currentThread().getId());
             int i = 20 / 2;
             System.out.println("运行结果" + i);
@@ -53,7 +53,7 @@ public class ThreadTest2 {
         /**
          * handle()方法 执行完成后的处理
          */
-        CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<Integer> future3 = CompletableFuture.supplyAsync(() -> {
             System.out.println("当前线程" + Thread.currentThread().getId());
             int i = 20 / 2;
             System.out.println("运行结果" + i);
@@ -70,7 +70,7 @@ public class ThreadTest2 {
             return res;
         });
 
-        Integer i = future.get();
+        Integer i = future3.get();
         System.out.println("main---end---" + i);
     }
 }
