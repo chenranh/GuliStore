@@ -15,7 +15,9 @@ import java.util.List;
 @Data
 public class SkuItemVo {
     //1.sku基本信息获取 pms_sku_info
-    SkuInfoEntity skuInfoEntity;
+    SkuInfoEntity info;
+
+    boolean hasStock=true;
 
     //2.sku的图片信息 pms_sku_images
     private List<SkuImagesEntity> images;

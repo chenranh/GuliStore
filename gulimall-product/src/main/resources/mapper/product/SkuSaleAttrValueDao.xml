@@ -17,7 +17,7 @@
 <!--    分析当前的spu有多少个sku，所有sku涉及到的属性组合-->
     <select id="getSaleAttrsBySpuId" resultType="com.atguigu.gulimall.product.vo.itemVo.SkuItemSaleAttrVo">
 
-        select ssav.attr_id attr_id attr_id, ssav.attr_name attr_name attr_name, group_concat(distinct ssav.attr_value) attr_values
+        select ssav.attr_id attr_id , ssav.attr_name attr_name , group_concat(distinct ssav.attr_value) attr_values
         from pms_sku_info info
         left join pms_sku_sale_attr_value ssav on ssav.sku_id = info.sku_id
         where info.spu_id = #{spuId}

@@ -123,7 +123,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         SkuItemVo skuItemVo = new SkuItemVo();
         //1、sku基本信息获取 pms_sku_info
         SkuInfoEntity info = this.getById(skuId);
-        skuItemVo.setSkuInfoEntity(info);
+        skuItemVo.setInfo(info);
         Long catelogId = info.getCatelogId();
         Long spuId = info.getSpuId();
         //2、sku的图片信息 pms_sku_images
