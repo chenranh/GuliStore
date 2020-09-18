@@ -116,8 +116,13 @@ public class ThreadTest {
                 Executors.defaultThreadFactory(),
                 //拒绝策略
                 new ThreadPoolExecutor.AbortPolicy());
-
+        //execute不需要返回结果的任务执行
         threadPoolExecutor.execute(new Runable01());
+        threadPoolExecutor.execute(()-> System.out.println("等价于上面的写法"));
+
+        //需要结果返回的则可调用submit方法
+        Future<?> submit = threadPoolExecutor.submit(() -> System.out.println("有返回值"));
+
 
 
         System.out.println("main---end---");
