@@ -3,21 +3,21 @@ package com.atguigu.gulimall.product.web;
 import com.atguigu.gulimall.product.entity.CategoryEntity;
 import com.atguigu.gulimall.product.service.CategoryService;
 import com.atguigu.gulimall.product.vo.forwebvo.Catelog2VO;
-import org.redisson.api.RLock;
-import org.redisson.api.RReadWriteLock;
-import org.redisson.api.RSemaphore;
-import org.redisson.api.RedissonClient;
+import org.redisson.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @title: IndexController
@@ -120,6 +120,7 @@ public class IndexController {
     @GetMapping("/read")
     @ResponseBody
     public String read() {
+
         RReadWriteLock lock = redissonClient.getReadWriteLock("rw-lock");
         String vaule = "";
         //加读锁
@@ -130,7 +131,7 @@ public class IndexController {
             vaule = (String) redisTemplate.opsForValue().get("writeVaule");
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             //释放锁
             rLock.unlock();
         }
@@ -138,10 +139,16 @@ public class IndexController {
         return vaule;
     }
 
+    // juc下的读写锁 用法的redisson一样
+//        ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+//        ReentrantReadWriteLock.WriteLock writeLock = readWriteLock.writeLock();
+//        writeLock.lock();
+
     /**
      * 信号量  可以用来做分布式限流
      * 车库停车
      * 3车位 来一辆车占用一个车位 想要停车需要看车位够不够
+     *
      * @return
      */
     @GetMapping("/park")
@@ -150,9 +157,9 @@ public class IndexController {
         RSemaphore park = redissonClient.getSemaphore("park");
         park.acquire();//获取一个信号量 获取一个值 占一个车位  阻塞式获取 一定获取才停止加载
         boolean b = park.tryAcquire(); //尝试获取
-        if(b){
+        if (b) {
             //执行业务
-        }else {
+        } else {
             System.out.println("当前人流量大 稍等一会再获取");
         }
         return "ok";
@@ -165,6 +172,29 @@ public class IndexController {
         RSemaphore park = redissonClient.getSemaphore("park");
         park.release();//释放一个车位
         return "ok";
+    }
+
+
+    /**
+     * 闭锁
+     * 放假锁门
+     * 5个班全部走完，我们可以锁大门
+     */
+    @GetMapping("/lockDoor")
+    @ResponseBody
+    public String lockDoor() throws InterruptedException {
+        RCountDownLatch door = redissonClient.getCountDownLatch("door");
+        door.trySetCount(5);//5个班的计数
+        door.await();//等待闭锁都完成
+        return "放假了----";
+    }
+
+    @GetMapping("/gogogo/{id}")
+    @ResponseBody
+    public String gogogo(@PathVariable("id") Long id) {
+        RCountDownLatch door = redissonClient.getCountDownLatch("door");
+        door.countDown();//计数减一
+        return id + "班的人都走了---";
     }
 
 }
