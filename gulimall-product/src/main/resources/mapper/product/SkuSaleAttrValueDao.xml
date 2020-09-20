@@ -12,16 +12,27 @@
         <result property="attrSort" column="attr_sort"/>
     </resultMap>
 
-<!-- 注意点  1. group_concat 组连接 2.起别名  3.group by 需要带上查询的所有字段? 好像是5.7版本以上会有的问题 -->
+
+    <!-- 封装自定义结果集 -->
+    <resultMap id="SkuItemSaleAttrVo" type="com.atguigu.gulimall.product.vo.itemVo.SkuItemSaleAttrVo">
+        <result column="attr_id" property="attrId"></result>
+        <result column="attr_name" property="attrName"></result>
+        <collection property="attrValues" ofType="com.atguigu.gulimall.product.vo.itemVo.AttrValueWithSkuIdVo">
+            <result column="attr_value" property="attrValue"></result>
+            <result column="sku_ids" property="skuIds"></result>
+        </collection>
+    </resultMap>
+<!-- 注意点  1. group_concat 组连接 2.起别名
+3.group by 需要带上查询的所有字段? 好像是5.7版本以上会有的问题  这里因为attr_id和attr_name查询出来的字段都是重复字段所以两个都需要分组 -->
 
 <!--    分析当前的spu有多少个sku，所有sku涉及到的属性组合-->
-    <select id="getSaleAttrsBySpuId" resultType="com.atguigu.gulimall.product.vo.itemVo.SkuItemSaleAttrVo">
+    <select id="getSaleAttrsBySpuId" resultMap="SkuItemSaleAttrVo">
 
-        select ssav.attr_id attr_id , ssav.attr_name attr_name , group_concat(distinct ssav.attr_value) attr_values
+        select ssav.attr_id , ssav.attr_name , ssav.attr_value , group_concat(distinct info.sku_id) sku_ids
         from pms_sku_info info
         left join pms_sku_sale_attr_value ssav on ssav.sku_id = info.sku_id
         where info.spu_id = #{spuId}
-        group by ssav.attr_id, ssav.attr_name
+        group by ssav.attr_id, ssav.attr_name,ssav.attr_value
 
     </select>
 

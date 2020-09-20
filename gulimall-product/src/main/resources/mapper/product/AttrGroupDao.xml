@@ -25,8 +25,7 @@
 
     </resultMap>
 
-    <select id="getAttrGropWithAttrsBySpuId"
-            resultType="com.atguigu.gulimall.product.vo.itemVo.SpuItemAttrGroupVo">
+    <select id="getAttrGropWithAttrsBySpuId" resultMap="spuItemAttrGroupVO">
 
 
         select pav.spu_id, ag.attr_group_name, ag.attr_group_id, aar.attr_id, attr.attr_name, pav.attr_value

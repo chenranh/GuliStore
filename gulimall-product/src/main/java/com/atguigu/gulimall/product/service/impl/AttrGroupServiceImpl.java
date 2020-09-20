@@ -98,7 +98,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
         List<SpuItemAttrGroupVo>vos=baseMapper.getAttrGropWithAttrsBySpuId(spuId,catelogId);
 
-        return null;
+        return vos;
     }
 
 }
