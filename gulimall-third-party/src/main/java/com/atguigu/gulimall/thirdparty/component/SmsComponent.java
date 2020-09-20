@@ -19,35 +19,32 @@ import java.util.Map;
 @Component
 public class SmsComponent {
 
-	private String host;
+    private String host;
 
-	private String path;
+    private String path;
 
-	private String skin;
+    private String appCode;
 
-	private String sign;
+    public String sendSmsCode(String phone, String code) {
+        String method="post";
+        Map<String, String> headers = new HashMap<String, String>();
+        //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
+        headers.put("Authorization", "APPCODE " + appCode);
+        Map<String, String> querys = new HashMap<String, String>();
+        querys.put("receive", phone);
+        querys.put("tag", code);
+        querys.put("templateId", "M09DD535F4");
+        Map<String, String> bodys = new HashMap<String, String>();
 
-	private String appCode;
-
-	public String sendSmsCode(String phone, String code){
-		String method = "GET";
-		Map<String, String> headers = new HashMap<String, String>();
-		//最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
-		headers.put("Authorization", "APPCODE " + this.appCode);
-		Map<String, String> querys = new HashMap<String, String>();
-		querys.put("receive", phone);
-		querys.put("tag", code);
-		querys.put("templateId", "M4F8845237");
-		HttpResponse response=null;
-		try {
-			 response = HttpUtils.doGet(this.host, this.path, method, headers, querys);
-			//获取response的body
-			if(response.getStatusLine().getStatusCode() == 200){
-				return EntityUtils.toString(response.getEntity());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return "fail_" + response.getStatusLine().getStatusCode();
-	}
+        HttpResponse response = null;
+        try {
+            response = HttpUtils.doPost(host, path, method, headers, querys, bodys);
+            System.out.println(response.toString());
+            //获取response的body
+            System.out.println(EntityUtils.toString(response.getEntity()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "fail_" + response.getStatusLine().getStatusCode();
+    }
 }
