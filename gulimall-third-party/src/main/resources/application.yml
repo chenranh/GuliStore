@@ -10,6 +10,12 @@ spring:
         endpoint: oss-cn-hangzhou.aliyuncs.com
         bucket: gulimall-yuke
 
+      sms:
+        app-code: 4f7292af19c348a38840e47b5b504d36
+        path: /sms/send
+        host: https://smssend.shumaidata.com
+
+
   application:
     name: gulimall-third-party
 
