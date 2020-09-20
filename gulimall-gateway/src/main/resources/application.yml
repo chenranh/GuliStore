@@ -12,6 +12,7 @@ spring:
             - Query=url,qq
 
         ## http://localhost:88/api/product/category/list/tree   http://localhost:10000/product/category/list/tree
+        #  /api是后台页面发送的请求带的   window.SITE_CONFIG['baseUrl'] = 'http://localhost:88/api';
         - id: product_route
           uri: lb://gulimall-product
           predicates:
@@ -63,3 +64,8 @@ spring:
           uri: lb://gulimall-search
           predicates:
             - Host=search.gulimall.com
+
+        - id: gulimall_auth_route
+          uri: lb://gulimall-auth-server
+          predicates:
+            - Host=auth.gulimall.com

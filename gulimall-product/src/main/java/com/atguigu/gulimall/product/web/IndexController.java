@@ -155,6 +155,8 @@ public class IndexController {
     @ResponseBody
     public String park() throws InterruptedException {
         RSemaphore park = redissonClient.getSemaphore("park");
+        // 同时最多允许3个线程获取锁
+        park.trySetPermits(3);
         park.acquire();//获取一个信号量 获取一个值 占一个车位  阻塞式获取 一定获取才停止加载
         boolean b = park.tryAcquire(); //尝试获取
         if (b) {
