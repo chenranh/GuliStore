@@ -5,13 +5,10 @@ import java.util.Map;
 
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.feign.CouponFeignService;
+import com.atguigu.gulimall.vo.MemberRegistVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.atguigu.gulimall.member.entity.MemberEntity;
 import com.atguigu.gulimall.member.service.MemberService;
@@ -19,7 +16,6 @@ import com.atguigu.common.utils.PageUtils;
 
 
 /**
- * ??Ա
  *
  * @author yuke
  * @email 627617510@gmail.com
@@ -54,6 +50,18 @@ public class MemberController {
 
         return R.ok().put("page", page);
     }
+
+    /**
+     * 注册会员
+     * @return
+     */
+    @PostMapping("/regist")
+    public R regist(@RequestBody  MemberRegistVo vo){
+        memberService.regist(vo);
+
+        return R.ok();
+    }
+
 
 
     /**

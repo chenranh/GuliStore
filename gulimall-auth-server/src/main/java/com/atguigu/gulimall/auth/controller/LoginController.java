@@ -22,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -82,6 +83,7 @@ public class LoginController {
     @PostMapping("/regist")
     public String regist(@Valid UserRegistVo vo, BindingResult result, RedirectAttributes redirectAttributes, HttpSession session){
 
+        //1.校验前端传递过来的参数
         if (result.hasErrors()){
             Map<String, String> errors = result.getFieldErrors().stream()
                     .collect(Collectors.toMap(FieldError::getField, DefaultMessageSourceResolvable::getDefaultMessage));
@@ -90,7 +92,26 @@ public class LoginController {
             //校验出错，转发到注册页
             return "redirect:http://auth.gulimall.com/reg.html";
         }
-        //真正注册 调用远程服务进行注册
+
+        // 2.校验验证码
+        String code = vo.getCode();
+        String s = redisTemplate.opsForValue().get(AuthServerConstant.SMS_CODE_CACHE_PREFIX + vo.getPhone());
+        if (StrUtil.isNotBlank(s)){
+            String s1 = s.split("_")[0];
+            if (code.equals(s1)){
+                //验证码通过 真正注册 调用远程服务进行注册
+                //删除验证码(令牌机制  用过以后删掉)
+                redisTemplate.delete(AuthServerConstant.SMS_CODE_CACHE_PREFIX + vo.getPhone());
+            }else {
+                HashMap<String, String> errors = new HashMap<>();
+                errors.put("code", "验证码错误");
+                return "redirect:http://auth.gulimall.com/reg.html";
+            }
+        }else {
+            HashMap<String, String> errors = new HashMap<>();
+            errors.put("code", "验证码错误");
+            return "redirect:http://auth.gulimall.com/reg.html";
+        }
 
         //注册成功回到首页，回到登录页
         return "redirect:/login.html";
