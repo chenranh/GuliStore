@@ -1,25 +1,15 @@
 package com.atguigu.gulimall.auth.controller;
 
-import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.utils.R;
+import com.atguigu.gulimall.auth.feign.ThirdPartFeignService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * <p>Title: LoginController</p>
@@ -29,17 +19,23 @@ import java.util.stream.Collectors;
 @Controller
 public class LoginController {
 
+    @Autowired
+    ThirdPartFeignService thirdPartFeignService;
 
-//    @GetMapping("/login.html")
-//    public String loginPage() {
-//        return "login";
-//    }
-//
-//
-//    @GetMapping("/reg.html")
-//    public String regPage() {
-//        return "reg";
-//    }
+    @Autowired
+    StringRedisTemplate redisTemplate;
+
+
+    @ResponseBody
+    @GetMapping("/sms/sendcode")
+    public R sendCode(@RequestParam("phone") String phone){
+        // 1.接口防刷
+        //2.验证码的再次校验。存入redis
+
+        //远程调用
+        thirdPartFeignService.sendCode(phone);
+        return R.ok();
+    }
 
 
 }
