@@ -1,5 +1,7 @@
 package com.atguigu.gulimall.member.service;
 
+import com.atguigu.gulimall.exception.PhoneExsitException;
+import com.atguigu.gulimall.exception.UserNameExistException;
 import com.atguigu.gulimall.vo.MemberRegistVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.atguigu.common.utils.PageUtils;
@@ -8,7 +10,7 @@ import com.atguigu.gulimall.member.entity.MemberEntity;
 import java.util.Map;
 
 /**
- * ??Ա
+ *
  *
  * @author yuke
  * @email 627617510@gmail.com
@@ -20,8 +22,8 @@ public interface MemberService extends IService<MemberEntity> {
 
     void regist(MemberRegistVo vo);
 
-    boolean checkPhoneUnique(String email);
+    void checkPhoneUnique(String phone) throws PhoneExsitException;
 
-    boolean checkUsernameUnique(String userName);
+    void checkUsernameUnique(String userName) throws UserNameExistException;
 }
 

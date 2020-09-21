@@ -57,8 +57,12 @@ public class MemberController {
      */
     @PostMapping("/regist")
     public R regist(@RequestBody  MemberRegistVo vo){
-        memberService.regist(vo);
 
+        try {
+            memberService.regist(vo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return R.ok();
     }
 
