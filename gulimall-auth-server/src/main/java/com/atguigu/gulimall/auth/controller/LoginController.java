@@ -1,9 +1,11 @@
 package com.atguigu.gulimall.auth.controller;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.constant.AuthServerConstant;
 import com.atguigu.common.exception.BizCodeEnume;
 import com.atguigu.common.utils.R;
+import com.atguigu.gulimall.auth.feign.MemberFeignService;
 import com.atguigu.gulimall.auth.feign.ThirdPartFeignService;
 import com.atguigu.gulimall.auth.vo.UserRegistVo;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +46,8 @@ public class LoginController {
     @Autowired
     StringRedisTemplate redisTemplate;
 
+    @Autowired
+    MemberFeignService memberFeignService;
 
     @ResponseBody
     @GetMapping("/sms/sendcode")
@@ -62,12 +66,13 @@ public class LoginController {
             }
         }
 
+        String code = UUID.randomUUID().toString().substring(0, 5);
         //存入redis 同时加入当前时间 存入类型 key-phone,value-code sms:code:13006862213--> 45696
-        String code = UUID.randomUUID().toString().substring(0, 5)+"_"+System.currentTimeMillis();
+        String substring =code+"_"+System.currentTimeMillis();
         //redis缓存验证码
-        redisTemplate.opsForValue().set(AuthServerConstant.SMS_CODE_CACHE_PREFIX+phone,code,10, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(AuthServerConstant.SMS_CODE_CACHE_PREFIX+phone,substring,10, TimeUnit.MINUTES);
         //远程调用
-        thirdPartFeignService.sendCode(phone);
+        thirdPartFeignService.sendCode(phone,code);
         return R.ok();
     }
 
@@ -99,9 +104,20 @@ public class LoginController {
         if (StrUtil.isNotBlank(s)){
             String s1 = s.split("_")[0];
             if (code.equals(s1)){
-                //验证码通过 真正注册 调用远程服务进行注册
                 //删除验证码(令牌机制  用过以后删掉)
                 redisTemplate.delete(AuthServerConstant.SMS_CODE_CACHE_PREFIX + vo.getPhone());
+                //验证码通过 真正注册 调用远程服务进行注册
+                R r = memberFeignService.regist(vo);
+                if (r.getCode()==0){
+                    //成功
+                    return  "redirect:http://auth.gulimall.com/login.html";
+                }else {
+                    HashMap<String, String> errors = new HashMap<>();
+                    errors.put("msg",r.getData(new TypeReference<String>(){}));
+                    redirectAttributes.addFlashAttribute("errors", errors);
+                    return  "redirect:http://auth.gulimall.com/reg.html";
+                }
+
             }else {
                 HashMap<String, String> errors = new HashMap<>();
                 errors.put("code", "验证码错误");
@@ -113,8 +129,6 @@ public class LoginController {
             return "redirect:http://auth.gulimall.com/reg.html";
         }
 
-        //注册成功回到首页，回到登录页
-        return "redirect:/login.html";
     }
 
 
