@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * ??Ա
- * 
+ *
  * @author yuke
  * @email 627617510@gmail.com
  * @date 2020-08-23 17:46:43
@@ -92,5 +92,14 @@ public class MemberEntity implements Serializable {
 	 * $column.comments
 	 */
 	private Date createTime;
+
+	/**
+	 * 以下三个地段是微博账号需要的字段
+	 */
+	private String socialUid;
+
+	private String accessToken;
+
+	private Long expiresIn;
 
 }

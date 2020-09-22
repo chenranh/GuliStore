@@ -1,17 +1,25 @@
 package com.atguigu.gulimall.member.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.atguigu.common.utils.HttpUtils;
 import com.atguigu.gulimall.exception.PhoneExsitException;
 import com.atguigu.gulimall.exception.UserNameExistException;
 import com.atguigu.gulimall.member.dao.MemberLevelDao;
 import com.atguigu.gulimall.member.entity.MemberLevelEntity;
 import com.atguigu.gulimall.vo.MemberLoginVo;
 import com.atguigu.gulimall.vo.MemberRegistVo;
+import com.atguigu.gulimall.vo.SocialUser;
 import org.apache.commons.codec.digest.Md5Crypt;
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -88,6 +96,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
 
     /**
      * 登录验证
+     *
      * @param vo
      * @return
      */
@@ -98,19 +107,87 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
 
         // 去数据库查询
         MemberEntity entity = this.baseMapper.selectOne(new QueryWrapper<MemberEntity>().eq("username", loginacct).or().eq("mobile", loginacct));
-        if(entity == null){
+        if (entity == null) {
             // 登录失败
             return null;
-        }else{
+        } else {
             // 前面传一个明文密码 后面传一个编码后的密码
             boolean matches = bCryptPasswordEncoder.matches(vo.getPassword(), entity.getPassword());
-            if (matches){
+            if (matches) {
                 entity.setPassword(null);
                 return entity;
-            }else {
+            } else {
                 return null;
             }
         }
     }
 
+    /**
+     * 使用社交账号登录
+     *
+     * @param socialUser
+     * @return
+     */
+    @Override
+    public MemberEntity login(SocialUser socialUser) {
+        //登录和注册合并逻辑
+        String uid = socialUser.getUid();
+        // TODO: 2020-09-22  ums_member表添加social_uid和access_token、expires_in字段
+        //判断当前社交用户是否已经登陆过该系统
+        MemberDao baseMapper = this.baseMapper;
+        MemberEntity entity = baseMapper.selectOne(new QueryWrapper<MemberEntity>().eq("social_uid", uid));
+        MemberEntity memberEntity = new MemberEntity();
+        if (entity != null) {
+            //这个用户已经注册过
+            memberEntity.setId(entity.getId());
+            memberEntity.setAccessToken(socialUser.getAccessToken());
+            memberEntity.setExpiresIn(socialUser.getExpiresIn());
+            // 更新
+            baseMapper.updateById(memberEntity);
+
+            entity.setAccessToken(socialUser.getAccessToken());
+            entity.setExpiresIn(socialUser.getExpiresIn());
+            entity.setPassword(null);
+            return entity;
+        } else {
+            //没有查到当前社交用户的记录 需要注册一个
+            HashMap<String, String> map = new HashMap<>();
+            map.put("access_token", socialUser.getAccessToken());
+            map.put("uid", socialUser.getUid());
+            try {
+                HttpResponse response = HttpUtils.doGet("https://api.weibo.com", "/2/users/show.json", "get", new HashMap<>(), map);
+                // 3. 查询当前社交用户账号信息(昵称、性别等)
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    // 查询成功
+                    String json = EntityUtils.toString(response.getEntity());
+                    // 这个JSON对象什么样的数据都可以直接获取
+                    JSONObject jsonObject = JSON.parseObject(json);
+                    memberEntity.setNickname(jsonObject.getString("name"));
+                    memberEntity.setUsername(jsonObject.getString("name"));
+                    memberEntity.setGender("m".equals(jsonObject.getString("gender")) ? 1 : 0);
+                    memberEntity.setCity(jsonObject.getString("location"));
+                    memberEntity.setJob("自媒体");
+                    memberEntity.setEmail(jsonObject.getString("email"));
+                }
+            } catch (Exception e) {
+                log.warn("社交登录时远程调用出错 [尝试修复]");
+            }
+            memberEntity.setStatus(0);
+            memberEntity.setCreateTime(new Date());
+            memberEntity.setBirth(new Date());
+            memberEntity.setLevelId(1L);
+            memberEntity.setSocialUid(socialUser.getUid());
+            memberEntity.setAccessToken(socialUser.getAccessToken());
+            memberEntity.setExpiresIn(socialUser.getExpiresIn());
+
+            // 注册 -- 登录成功
+            baseMapper.insert(memberEntity);
+            memberEntity.setPassword(null);
+            return memberEntity;
+        }
+    }
+
+
 }
+
+

@@ -10,6 +10,7 @@ import com.atguigu.gulimall.exception.UserNameExistException;
 import com.atguigu.gulimall.feign.CouponFeignService;
 import com.atguigu.gulimall.vo.MemberLoginVo;
 import com.atguigu.gulimall.vo.MemberRegistVo;
+import com.atguigu.gulimall.vo.SocialUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.*;
@@ -52,6 +53,17 @@ public class MemberController {
         PageUtils page = memberService.queryPage(params);
 
         return R.ok().put("page", page);
+    }
+
+    @PostMapping("/oauth2/login")
+    public R login(@RequestBody SocialUser socialUser){
+
+        MemberEntity memberEntity = memberService.login(socialUser);
+        if(memberEntity != null){
+            return R.ok().setData(memberEntity);
+        }else {
+            return R.error(BizCodeEnume.SOCIALUSER_LOGIN_ERROR.getCode(), BizCodeEnume.SOCIALUSER_LOGIN_ERROR.getMsg());
+        }
     }
 
     /**

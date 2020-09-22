@@ -159,7 +159,10 @@ public SkuItemVo item(Long skuId) throws ExecutionException, InterruptedExceptio
         SkuInfoEntity info = this.getById(skuId);
         skuItemVo.setInfo(info);
         return info;
-    }, executor);
+    }, executor).exceptionally(throwable -> {
+        //数据库没有查到数据 返回空
+        return null;
+    });;
 
     CompletableFuture<Void> imageFuture = CompletableFuture.runAsync(() -> {
         //2、sku的图片信息 pms_sku_images
