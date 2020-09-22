@@ -5,6 +5,7 @@ import com.atguigu.gulimall.exception.PhoneExsitException;
 import com.atguigu.gulimall.exception.UserNameExistException;
 import com.atguigu.gulimall.member.dao.MemberLevelDao;
 import com.atguigu.gulimall.member.entity.MemberLevelEntity;
+import com.atguigu.gulimall.vo.MemberLoginVo;
 import com.atguigu.gulimall.vo.MemberRegistVo;
 import org.apache.commons.codec.digest.Md5Crypt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +84,33 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
             throw new UserNameExistException();
         }
 
+    }
+
+    /**
+     * 登录验证
+     * @param vo
+     * @return
+     */
+    @Override
+    public MemberEntity login(MemberLoginVo vo) {
+        String loginacct = vo.getLoginacct();
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
+        // 去数据库查询
+        MemberEntity entity = this.baseMapper.selectOne(new QueryWrapper<MemberEntity>().eq("username", loginacct).or().eq("mobile", loginacct));
+        if(entity == null){
+            // 登录失败
+            return null;
+        }else{
+            // 前面传一个明文密码 后面传一个编码后的密码
+            boolean matches = bCryptPasswordEncoder.matches(vo.getPassword(), entity.getPassword());
+            if (matches){
+                entity.setPassword(null);
+                return entity;
+            }else {
+                return null;
+            }
+        }
     }
 
 }

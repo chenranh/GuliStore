@@ -8,6 +8,7 @@ import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.exception.PhoneExsitException;
 import com.atguigu.gulimall.exception.UserNameExistException;
 import com.atguigu.gulimall.feign.CouponFeignService;
+import com.atguigu.gulimall.vo.MemberLoginVo;
 import com.atguigu.gulimall.vo.MemberRegistVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -19,7 +20,6 @@ import com.atguigu.common.utils.PageUtils;
 
 
 /**
- *
  * @author yuke
  * @email 627617510@gmail.com
  * @date 2020-08-23 17:46:43
@@ -56,22 +56,32 @@ public class MemberController {
 
     /**
      * 注册会员
+     *
      * @return
      */
     @PostMapping("/regist")
-    public R regist(@RequestBody MemberRegistVo vo){
+    public R regist(@RequestBody MemberRegistVo vo) {
 
         try {
             memberService.regist(vo);
         } catch (PhoneExsitException e) {
-            return R.error(BizCodeEnume.PHONE_EXIST_EXCEPTION.getCode(),BizCodeEnume.PHONE_EXIST_EXCEPTION.getMsg());
-        }catch (UserNameExistException e){
-            return R.error(BizCodeEnume.USER_EXIST_EXCEPTION.getCode(),BizCodeEnume.USER_EXIST_EXCEPTION.getMsg());
+            return R.error(BizCodeEnume.PHONE_EXIST_EXCEPTION.getCode(), BizCodeEnume.PHONE_EXIST_EXCEPTION.getMsg());
+        } catch (UserNameExistException e) {
+            return R.error(BizCodeEnume.USER_EXIST_EXCEPTION.getCode(), BizCodeEnume.USER_EXIST_EXCEPTION.getMsg());
         }
         return R.ok();
     }
 
+    @PostMapping("/login")
+    public R login(@RequestBody MemberLoginVo vo) {
 
+        MemberEntity memberEntity = memberService.login(vo);
+        if (memberEntity != null) {
+            return R.ok().setData(memberEntity);
+        } else {
+            return R.error(BizCodeEnume.LOGINACTT_PASSWORD_ERROR.getCode(), BizCodeEnume.LOGINACTT_PASSWORD_ERROR.getMsg());
+        }
+    }
 
     /**
      * 信息

@@ -7,6 +7,7 @@ import com.atguigu.common.exception.BizCodeEnume;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.auth.feign.MemberFeignService;
 import com.atguigu.gulimall.auth.feign.ThirdPartFeignService;
+import com.atguigu.gulimall.auth.vo.UserLoginVo;
 import com.atguigu.gulimall.auth.vo.UserRegistVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,6 +130,25 @@ public class LoginController {
             return "redirect:http://auth.gulimall.com/reg.html";
         }
 
+    }
+
+    @PostMapping("/login")
+    public String login(UserLoginVo userLoginVo, RedirectAttributes redirectAttributes, HttpSession session){
+        // 远程登录
+        R r = memberFeignService.login(userLoginVo);
+        if(r.getCode() == 0){
+            // 登录成功
+//            MemberRsepVo rsepVo = r.getData("data", new TypeReference<MemberRsepVo>() {});
+//            session.setAttribute(AuthServerConstant.LOGIN_USER, rsepVo);
+//            log.info("\n欢迎 [" + rsepVo.getUsername() + "] 登录");
+            return "redirect:http://gulimall.com";
+        }else {
+            HashMap<String, String> errors = new HashMap<>();
+            // 获取错误信息
+            errors.put("msg", r.getData("msg",new TypeReference<String>(){}));
+            redirectAttributes.addFlashAttribute("errors", errors);
+            return "redirect:http://auth.gulimall.com/login.html";
+        }
     }
 
 
