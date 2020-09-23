@@ -1,4 +1,4 @@
-package com.atguigu.gulimall.auth.controller;
+package com.atguigu.gulimall.auth.vo;
 
 import lombok.Data;
 
