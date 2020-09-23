@@ -55,6 +55,11 @@ public class MemberController {
         return R.ok().put("page", page);
     }
 
+    /**
+     * 微博社交登录 添加一条数据
+     * @param socialUser
+     * @return
+     */
     @PostMapping("/oauth2/login")
     public R login(@RequestBody SocialUser socialUser){
 
@@ -84,6 +89,11 @@ public class MemberController {
         return R.ok();
     }
 
+    /**
+     * 账号密码登录
+     * @param vo
+     * @return
+     */
     @PostMapping("/login")
     public R login(@RequestBody MemberLoginVo vo) {
 

@@ -66,6 +66,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
 
         entity.setMobile(vo.getPhone());
         entity.setUsername(vo.getUserName());
+        entity.setNickname(vo.getUserName());
         //密码要加密存储 不再使用md5加密 升级版 数据库不用再存储盐值字段
         //对应的解密 passwordEncoder.matches(vo.getPassword(),"数据库存储解密后的encode")
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();

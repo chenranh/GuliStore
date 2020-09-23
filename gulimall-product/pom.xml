@@ -35,6 +35,12 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- 整合Spring-seesion  -->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
+
 <!--oss文件存储-->
 <!--        <dependency>-->
 <!--            <groupId>com.aliyun.oss</groupId>-->

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.constant.AuthServerConstant;
 import com.atguigu.common.exception.BizCodeEnume;
 import com.atguigu.common.utils.R;
+import com.atguigu.common.vo.MemberRsepVo;
 import com.atguigu.gulimall.auth.feign.MemberFeignService;
 import com.atguigu.gulimall.auth.feign.ThirdPartFeignService;
 import com.atguigu.gulimall.auth.vo.UserLoginVo;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +25,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -34,8 +33,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * <p>Title: LoginController</p>
- * Description：登录注册模块
+ *账号密码登录
  */
 @Slf4j
 @Controller
@@ -138,9 +136,9 @@ public class LoginController {
         R r = memberFeignService.login(userLoginVo);
         if(r.getCode() == 0){
             // 登录成功
-//            MemberRsepVo rsepVo = r.getData("data", new TypeReference<MemberRsepVo>() {});
-//            session.setAttribute(AuthServerConstant.LOGIN_USER, rsepVo);
-//            log.info("\n欢迎 [" + rsepVo.getUsername() + "] 登录");
+            MemberRsepVo rsepVo = r.getData("data", new TypeReference<MemberRsepVo>() {});
+            session.setAttribute(AuthServerConstant.LOGIN_USER, rsepVo);
+            log.info("\n欢迎 [" + rsepVo.getUsername() + "] 登录");
             return "redirect:http://gulimall.com";
         }else {
             HashMap<String, String> errors = new HashMap<>();
@@ -151,5 +149,17 @@ public class LoginController {
         }
     }
 
+
+    @GetMapping("/login.html")
+    public String loginPage(HttpSession session){
+        Object attribute = session.getAttribute(AuthServerConstant.LOGIN_USER);
+        if (attribute==null){
+            //没登陆
+            return "login";
+        }else {
+            return "redirect:http://gulimall.com";
+        }
+
+    }
 
 }

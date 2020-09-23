@@ -1,17 +1,13 @@
 package com.atguigu.gulimall.auth.controller;
 
-/**
- * @title: OAuth2Controller
- * @Author yuke
- * @Date: 2020-09-22 11:37
- */
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.atguigu.common.constant.AuthServerConstant;
 import com.atguigu.common.utils.HttpUtils;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.auth.feign.MemberFeignService;
-import com.atguigu.gulimall.auth.vo.MemberRsepVo;
+import com.atguigu.common.vo.MemberRsepVo;
 import com.atguigu.gulimall.auth.vo.SocialUser;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
@@ -21,12 +17,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * 处理社交登录请求
- * 微博登录
+ * 社交登录 微博登录
  * 调用远程会员登录接口
  */
 @Controller
@@ -37,7 +34,7 @@ public class OAuth2Controller {
     MemberFeignService memberFeignService;
 
     @GetMapping("oauth2.0/weibo/success")
-    public String weibo(@RequestParam("code") String code) throws Exception {
+    public String weibo(@RequestParam("code") String code, HttpSession session) throws Exception {
         HashMap<String, String> map = new HashMap<>();
         map.put("client_id", "992647046");
         map.put("client_secret", "5ea0d1785eaf5a3baa892c97027d6c55");
@@ -57,8 +54,12 @@ public class OAuth2Controller {
             //登录或者注册这个社交用户  社交用户一定要关联本系统的账号信息
             R oathlogin = memberFeignService.login(socialUser);
             if (oathlogin.getCode() == 0) {
-                MemberRsepVo data = oathlogin.getData("data", new TypeReference<MemberRsepVo>() {
-                });
+                MemberRsepVo data = oathlogin.getData("data", new TypeReference<MemberRsepVo>() {});
+                // 第一次使用session 命令浏览器保存这个用户信息 JESSIONSEID 每次只要访问这个网站就会带上这个cookie
+                // 在发卡的时候扩大session作用域 (指定域名为父域名)
+                // TODO 1.默认发的当前域的session (需要解决子域session共享问题)
+                // TODO 2.使用JSON的方式序列化到redis
+                session.setAttribute(AuthServerConstant.LOGIN_USER, data);
                 log.info("登录成功：用户：{}",data.toString());
                 //log.info("\n欢迎 [" + data.getUsername() + "] 使用社交账号登录");
                 //2. 登陆成功就跳回首页
