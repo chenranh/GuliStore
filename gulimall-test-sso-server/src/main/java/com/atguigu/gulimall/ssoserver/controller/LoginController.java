@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * <p>Title: LoginController</p>
  * Description：
- * date：2020/6/27 15:26
  */
 @Controller
 public class LoginController {
