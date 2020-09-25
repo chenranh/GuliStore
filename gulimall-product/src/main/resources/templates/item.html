@@ -634,8 +634,8 @@
 								</div>
 							</div>
 							<div class="box-btns-two">
-								<a href="item/../商品分类\index.html">
-									立即预约
+								<a id="addToCartA" th:attr="skuId=${item.info.skuId}">
+									加入购物车
 								</a>
 							</div>
 							<div class="box-btns-three">
@@ -1300,7 +1300,7 @@
 			let num = $("#numInput").val();
 			// 获取当前按钮的自定义属性
 			let skuId = $(this).attr("skuId");
-			location.href = "http://cart.glmall.com/addToCart?skuId=" + skuId + "&num=" + num;
+			location.href = "http://cart.gulimall.com/addToCart?skuId=" + skuId + "&num=" + num;
 			return false;
 		})
 		$("#secKillA").click(function () {
