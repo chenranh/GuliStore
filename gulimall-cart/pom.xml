@@ -31,6 +31,13 @@
             <artifactId>spring-session-data-redis</artifactId>
         </dependency>
 
+        <!-- 自定义配置文件带提示 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <dependency>
             <groupId>com.atguigu.gulimall</groupId>
             <artifactId>gulimall-common</artifactId>
