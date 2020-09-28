@@ -1,17 +1,21 @@
 package com.atguigu.gulimall.order;
 
+import com.atguigu.gulimall.order.entity.OrderReturnReasonEntity;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.lang.Nullable;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Date;
 import java.util.Map;
 
 @Slf4j
@@ -21,6 +25,9 @@ class GulimallOrderApplicationTests {
 
     @Autowired
     AmqpAdmin amqpAdmin;
+
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
 
     /**
@@ -71,5 +78,25 @@ class GulimallOrderApplicationTests {
     }
     //================================================收发消息=================================================
 
+    //发送消息 选定交换机和路由键
+    @Test
+    void createsendMes() {
+        String msg="hello word";
+        rabbitTemplate.convertAndSend("hello-java-exchange","hello-java",msg);
+        log.info("消息发送完成{}", msg);
+    }
+
+    /**
+     * 发送的消息是一个对象 必须实现序列化
+     * 自定义序列化在配置文件中
+     */
+    @Test
+    void sendMesTest() {
+        OrderReturnReasonEntity entity = new OrderReturnReasonEntity();
+        entity.setCreateTime(new Date());
+        entity.setName("假货 赔钱");
+        rabbitTemplate.convertAndSend("hello-java-exchange","hello-java",entity);
+        log.info("消息发送完成{}", entity);
+    }
 
 }
