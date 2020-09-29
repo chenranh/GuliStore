@@ -23,7 +23,7 @@ public class RabbitController {
     RabbitTemplate rabbitTemplatet;
 
     /**
-     * 生产者 发送消息
+     * 测试生产者 发送消息
      * @param num
      * @return
      */

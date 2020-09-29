@@ -35,7 +35,7 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemDao, OrderItemEnt
     }
 
 
-
+//==============================================测试rabbitmq接收消息====================================================
     /**
      * queue声明需要监听的所有队列
      * @param message
