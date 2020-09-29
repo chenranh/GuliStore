@@ -11,8 +11,9 @@
       <div class="Jdbox_head">
         <img src="pay/img/logo1.jpg" alt=""><span class="bank">收银台</span>
         <ul>
-          <li><span>尚硅谷</span><span>退出</span></li>
-          <li>我的订单</li>
+          <li th:if="${session.loginUser} !=null"><span>[[${session.loginUser.username}]]</span><span><a href="http://auth.gulimall.com/oauth2.0/logout">退出</a></span></li>
+          <li th:if="${session.loginUser} ==null"><span><a href="http://auth.gulimall.com/login.html">请登录</a></span><span></span></li>
+          <li th:if="${session.loginUser} !=null"><a href="http://order.gulimall.com/list.html">我的订单</a></li>
           <li>支付帮助</li>
         </ul>
       </div>
