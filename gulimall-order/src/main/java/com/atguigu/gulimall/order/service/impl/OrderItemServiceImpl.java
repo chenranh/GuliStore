@@ -7,6 +7,8 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -47,8 +49,24 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemDao, OrderItemEnt
      *      2）业务处理期间能不能接收其他消息  只有当前消息处理完才能接收其他消息
      */
     @RabbitHandler
-    public void recieveMessage(Message message, OrderReturnReasonEntity content, Channel channel){
-        System.out.println("接收到的消息内容"+content);
+    public void recieveMessage(Message message,Channel channel){
+        //消息里的标签 channel内按顺序自增的
+        long deliveryTag = message.getMessageProperties().getDeliveryTag();
+
+        try {
+            if(deliveryTag%2==0){
+                //签收 ack确认消息 第二个参数multiple 是否批量签收消息
+                channel.basicAck(deliveryTag,false);
+            }else {
+                //拒收消息  第二个参数是否批量拒收，第三个参数是否重新入列
+                channel.basicNack(deliveryTag,false,false);
+                //同上 但不能批量
+                channel.basicReject(deliveryTag,false);
+            }
+        } catch (IOException e) {
+            //网络中断 签收状态发不出去
+            e.printStackTrace();
+        }
     }
 
     @RabbitHandler

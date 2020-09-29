@@ -41,7 +41,7 @@ class GulimallOrderApplicationTests {
     @Test
     void createExchange() {
 //        DirectExchange(String name, boolean durable, boolean autoDelete, Map<String, Object> arguments)
-
+        //durable参数表示队列在服务重启之后，也会存在
         DirectExchange directExchange = new DirectExchange("hello-java-exchange", true, false);
         amqpAdmin.declareExchange(directExchange);
         log.info("Exchange{}创建成功", "hello-java-exchange");
@@ -51,7 +51,7 @@ class GulimallOrderApplicationTests {
     @Test
     void createQueue() {
 //        Queue(String name, boolean durable, boolean exclusive, boolean autoDelete, @Nullable Map<String, Object> arguments)
-//        exclusive参数 表示只能有一个能连接到队列
+//        exclusive参数 表示只能有一个能连接到队列      durable参数表示队列在服务重启之后，也会存在
         Queue queue = new Queue("hello-java-queue", true, false, false);
         amqpAdmin.declareQueue(queue);
         log.info("Queue{}创建成功", "hello-java-queue");

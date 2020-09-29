@@ -53,9 +53,11 @@ public class MyRabbitConfig {
      *      mandatory: true
      *
      * 3.消费端确认(保证每一个消息被正确消费才可以broker删除消息)
-     *    1.默认是自动确认的 只要消息接收到 服务端就会移除这个消息
+     *    （1.默认是自动确认的 只要消息接收到 服务端就会移除这个消息，需要手动确认
+     *      如果还没有确认ack消息，消息处于unack状态，服务器宕机消息也不会丢失，会从unack状态变成准备状态
+     *      下次有新的consunmer连接进来就发给他
      *
-     *      如何签收:
+     *    （2.  如何ack签收:
      *      签收: channel.basicAck(deliveryTag, false);
      *      拒签: channel.basicNack(deliveryTag, false,true);
      *      配置文件中一定要加上这个配置
