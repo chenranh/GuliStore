@@ -39,6 +39,12 @@ public class MyRabbitConfig {
         return new Jackson2JsonMessageConverter();
     }
 
+
+
+
+
+//===========================================以下是消息确认部分============================================================
+
     /**
      * 1.设置确认回调： ConfirmCallback 只要抵达broker就会ack=true
      * 先在配置文件中开启 publisher-confirms: true

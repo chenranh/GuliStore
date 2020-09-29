@@ -11,8 +11,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -24,6 +26,17 @@ public class CartController {
     @Autowired
     CartService cartService;
 
+
+    /**
+     * 当前用户的购物车里面所有的购物项 用于订单服务远程调用
+     * @return
+     */
+    @ResponseBody
+    @GetMapping("/currentUserCartItems")
+    public List<CartItem> getCurrentUserCartItems(){
+
+        return cartService.getUserCartItems();
+    }
 
     /**
      * 勾选状态

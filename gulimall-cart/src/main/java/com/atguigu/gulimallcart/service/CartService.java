@@ -3,6 +3,7 @@ package com.atguigu.gulimallcart.service;
 import com.atguigu.gulimallcart.vo.Cart;
 import com.atguigu.gulimallcart.vo.CartItem;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface CartService {
@@ -55,4 +56,11 @@ public interface CartService {
      * @param num
      */
     void changeItemCount(Long skuId, Integer num);
+
+    /**
+     * 获取当前登录用户购物车里面的数据
+     * @return
+     */
+    List<CartItem> getUserCartItems();
+
 }
