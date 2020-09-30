@@ -52,6 +52,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         List<MemberAddressVo> address = membenFeignService.getAddress(memberRsepVo.getId());
         confirmVo.setAddress(address);
         //2.远程查询购物车所有选中的购物项
+        //fegin在远程调用之前要构造请求，调用很多的拦截器RequestInterceptor，需要自己添加拦截器。不然会丢失老请求里请求头内容，取不到当前登录用户
         List<OrderItemVo> items = cartFeignService.getCurrentUserCartItems();
         confirmVo.setItems(items);
         //3.查询用户积分
