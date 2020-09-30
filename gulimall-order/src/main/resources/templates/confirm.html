@@ -975,6 +975,40 @@
         })
     })
 
+    function highlight() {
+        // 默认颜色是灰色
+        $(".addr-item p").css({"border": "2px solid gray"})
+        $(".addr-item p[def='1']").css({"border": "2px solid red"})
+    }
+
+    $(".addr-item p").click(function () {
+        $("a.addr-item p").attr("def", "0");
+        $(this).attr("def", "1");
+        highlight();
+        // 选择发生了变化就要获取当前地址id
+        var addrId = $(this).attr("addrId");
+        // 发送Ajax请求获取运费信息
+        getFare(addrId)
+    });
+
+    function getFare(addrId) {
+        // 给表单回填选择的地址
+        $("#addrIdInput").val(addrId);
+        $.get("http://gulimall.com/api/ware/wareinfo/fare?addrId=" + addrId, function (data) {
+            // layer.msg(data.data + "元")
+            $("#fareEle").text(data.data.fare)
+
+            var total = [[${orderConfirmData.total}]];
+            total = total * 1 + data.data.fare * 1;
+            $("#payPrice").text(total);
+            $("#payPriceInput").val(total);
+            // console.log(data)
+            // layer.msg("总金额：" + total + "元")
+            $("#recieveAddressEle").text(data.data.memberAddressVo.province + "  " + data.data.memberAddressVo.city + " " + data.data.memberAddressVo.detailAddress);
+            $("#recieveEle").text(data.data.memberAddressVo.name)
+        })
+    }
+
 
 </script>
 </body>
