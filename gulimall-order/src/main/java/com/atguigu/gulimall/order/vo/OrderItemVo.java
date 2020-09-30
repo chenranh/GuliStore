@@ -39,11 +39,6 @@ public class OrderItemVo {
 	private BigDecimal totalPrice;
 
 	/**
-	 * 是否有货
-	 */
-//	private boolean hasStock;
-
-	/**
 	 * 重量
 	 */
 	private BigDecimal weight;

@@ -10,7 +10,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * feign远程调用丢失请求头原因：fegin在远程调用之前要构造请求，调用很多的拦截器RequestInterceptor
+ * 注意是登录状态下！！！ feign远程调用丢失请求头原因：fegin在远程调用之前要构造请求，调用很多的拦截器RequestInterceptor
  * 自己服务没有拦截器就会新new一个 丢掉远程服务请求头里的内容
  * feign远程调用丢失请求头内容问题解决  添加自己的拦截器
  */

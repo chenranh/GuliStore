@@ -37,16 +37,17 @@ public class OrderConfirmVo {
      */
     private String orderToken;
 
+    /**
+     * 用于判断某个sku是否有库存
+     */
     Map<Long, Boolean> stocks;
 
 
     /**
      * 订单总额
      */
-//    BigDecimal total;
-    /**
-     * 获取商品总价格
-     */
+    BigDecimal total;
+
     public BigDecimal getTotal() {
         BigDecimal sum = new BigDecimal("0");
         if (items != null) {
@@ -60,14 +61,18 @@ public class OrderConfirmVo {
     /**
      * 应付价格
      */
-//    BigDecimal payPrice;
+    BigDecimal payPrice;
 
-    /**
-     * 应付的价格
-     */
     public BigDecimal getPayPrice() {
         return getTotal();
     }
+
+    /**
+     * // TODO: 2020-09-30 总件数是一种商品的总件数还是所有商品的总件数
+     * 商品总件数
+     * @return
+     */
+    Integer count;
 
     public Integer getCount() {
         Integer i = 0;
