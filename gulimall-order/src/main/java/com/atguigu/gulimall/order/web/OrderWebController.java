@@ -21,7 +21,7 @@ public class OrderWebController {
     private OrderService orderService;
 
     @GetMapping("/toTrade")
-    public String toTrade(Model model) {
+    public String toTrade(Model model) throws ExecutionException, InterruptedException {
 
        OrderConfirmVo confirmVo = orderService.confirmOrder();
 
