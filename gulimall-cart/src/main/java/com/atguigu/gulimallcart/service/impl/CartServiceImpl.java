@@ -204,8 +204,9 @@ public class CartServiceImpl implements CartService {
             List<CartItem> collect = cartItems.stream().filter(CartItem::getCheck)
                     .map(cartItem -> {
                         //更新为最新的价格
-                        BigDecimal price = productFeignService.getPrice(cartItem.getSkuId());
-                        cartItem.setPrice(price);
+                        R price = productFeignService.getPrice(cartItem.getSkuId());
+                        String data = (String) price.get("data");
+                        cartItem.setPrice(new BigDecimal(data));
                         return cartItem;
                     }).collect(Collectors.toList());
 

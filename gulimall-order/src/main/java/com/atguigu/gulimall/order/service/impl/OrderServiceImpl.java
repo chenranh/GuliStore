@@ -25,6 +25,8 @@ import com.atguigu.common.utils.Query;
 import com.atguigu.gulimall.order.dao.OrderDao;
 import com.atguigu.gulimall.order.entity.OrderEntity;
 import com.atguigu.gulimall.order.service.OrderService;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 
 @Service("orderService")
@@ -55,9 +57,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         OrderConfirmVo confirmVo = new OrderConfirmVo();
         //注意这里对 threadLocal的应用
         MemberRsepVo memberRsepVo = LoginUserInterceptor.threadLocal.get();
+        //异步线程调用feign请求头丢失解决：从主线程里拿到数据 共享到副线程
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
 
         CompletableFuture<Void> memberFuture = CompletableFuture.runAsync(() -> {
             //1.远程查询所有的地址列表
+            //异步线程需要额外加上RequestContextHolder.setRequestAttributes()，共享主线程请求数据
+            RequestContextHolder.setRequestAttributes(requestAttributes);
             List<MemberAddressVo> address = membenFeignService.getAddress(memberRsepVo.getId());
             confirmVo.setAddress(address);
         }, executor);
@@ -67,6 +73,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         CompletableFuture<Void> cartFuture = CompletableFuture.runAsync(() -> {
             //2.远程查询购物车所有选中的购物项
             //fegin在远程调用之前要构造请求，调用很多的拦截器RequestInterceptor，需要自己添加拦截器。不然会丢失老请求里请求头内容，取不到当前登录用户
+            //异步线程需要额外加上RequestContextHolder.setRequestAttributes()，共享主线程请求数据
+            RequestContextHolder.setRequestAttributes(requestAttributes);
             List<OrderItemVo> items = cartFeignService.getCurrentUserCartItems();
             confirmVo.setItems(items);
         }, executor);
