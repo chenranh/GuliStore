@@ -127,7 +127,8 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         return pageUtils;
     }
 
-    @Cacheable(value = "attr",key = "'attrinfo:'+#root.args[0]")
+    @Cacheable(value = "attr", key = "'attrinfo:'+#root.args[0]")
+    //   @Cacheable(value = "attr",key = "'attrinfo:'+#attrId")
     @Override
     public AttrRespVo getAttrInfo(Long attrId) {
         AttrRespVo respVo = new AttrRespVo();
@@ -273,6 +274,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
     /**
      * 根据attrIds获取
+     *
      * @return
      */
     @Override

@@ -69,6 +69,7 @@ public class OrderConfirmVo {
 
     /**
      * // TODO: 2020-09-30 总件数是一种商品的总件数还是所有商品的总件数
+     * 是一种商品的总件数
      * 商品总件数
      * @return
      */

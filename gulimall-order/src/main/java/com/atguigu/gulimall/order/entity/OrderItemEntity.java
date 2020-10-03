@@ -10,7 +10,7 @@ import lombok.Data;
 
 /**
  * ????????Ϣ
- * 
+ *
  * @author yuke
  * @email 627617510@gmail.com
  * @date 2020-08-23 18:18:25
@@ -52,7 +52,7 @@ public class OrderItemEntity implements Serializable {
 	/**
 	 * $column.comments
 	 */
-	private Long categoryId;
+	private Long catagoryId;
 	/**
 	 * $column.comments
 	 */
