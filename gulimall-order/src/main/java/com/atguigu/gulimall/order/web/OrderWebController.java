@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.order.web;
 
+import com.atguigu.gulimall.order.exception.NoStockException;
 import com.atguigu.gulimall.order.service.OrderService;
 import com.atguigu.gulimall.order.vo.OrderConfirmVo;
 import com.atguigu.gulimall.order.vo.OrderSubmitVo;
@@ -68,7 +69,7 @@ public class OrderWebController {
                 return "redirect:http://order.gulimall.com/toTrade";
             }
         } catch (Exception e) {
-            if (e instanceof NotStock Exception){
+            if (e instanceof NoStockException){
                 String message = e.getMessage();
                 redirectAttributes.addFlashAttribute("msg", message);
             }

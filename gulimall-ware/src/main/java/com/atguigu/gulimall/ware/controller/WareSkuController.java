@@ -4,7 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.atguigu.common.exception.BizCodeEnume;
+import com.atguigu.gulimall.ware.exception.NoStockException;
 import com.atguigu.gulimall.ware.vo.SkuHasStockVO;
+import com.atguigu.gulimall.ware.vo.WareSkuLockVo;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,11 +27,33 @@ import com.atguigu.common.utils.R;
  * @email leifengyang@gmail.com
  * @date 2019-10-08 09:59:40
  */
+@Slf4j
 @RestController
 @RequestMapping("ware/waresku")
 public class WareSkuController {
     @Autowired
     private WareSkuService wareSkuService;
+
+
+    /**
+     * 锁定库存
+     * @param vo
+     * @return
+     */
+    @PostMapping("/lock/order")
+    public R orderLockStock(@RequestBody WareSkuLockVo vo){
+        try {
+            wareSkuService.orderLockStock(vo);
+            return R.ok();
+        } catch (NoStockException e) {
+            log.warn("\n" + e.getMessage());
+        }
+        return R.error(BizCodeEnume.NOT_STOCK_EXCEPTION.getCode(), BizCodeEnume.NOT_STOCK_EXCEPTION.getMsg());
+
+    }
+
+
+
 
     /**
      * 查询sku是否有库存

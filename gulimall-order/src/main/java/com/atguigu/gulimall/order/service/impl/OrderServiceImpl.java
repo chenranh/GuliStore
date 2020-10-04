@@ -6,6 +6,7 @@ import com.atguigu.common.utils.R;
 import com.atguigu.common.vo.MemberRsepVo;
 import com.atguigu.gulimall.order.constant.OrderConstant;
 import com.atguigu.gulimall.order.entity.OrderItemEntity;
+import com.atguigu.gulimall.order.exception.NoStockException;
 import com.atguigu.gulimall.order.feign.CartFeignService;
 import com.atguigu.gulimall.order.feign.MembenFeignService;
 import com.atguigu.gulimall.order.feign.ProductFeignService;
@@ -159,6 +160,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         SubmitOrderResponseVo response = new SubmitOrderResponseVo();
 
         MemberRsepVo memberRsepVo = LoginUserInterceptor.threadLocal.get();
+        // 0：正常
+        response.setCode(0);
 
         //下单：去创建订单，验证令牌，验证价格，锁库存...
         //1.验证令牌【核心：令牌的对比和删除必须保证原子性】
@@ -174,25 +177,43 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             return response;
         } else {
             //令牌验证成功
-            //创建订单和订单项等信息
+            //createOrder()创建订单和订单项和金额对比等信息
             OrderCreateTo order = createOrder();
             //2.验证价格 减去优惠券这些
             BigDecimal payAmount = order.getOrder().getPayAmount();
             BigDecimal payPrice = submitVo.getPayPrice();
-            if (Math.abs(payAmount.subtract(payPrice).doubleValue())<0.01) {
-                //金额对比
+            //金额对比
+            if (Math.abs(payAmount.subtract(payPrice).doubleValue()) < 0.01) {
                 //3.保存订单
                 saveOrder(order);
                 //4.库存锁定 只要有异常回滚订单数据
-                //
-
-            }else {
-
+                //订单号，所有订单项（skuid，skuname，num）
+                WareSkuLockVo lockVo = new WareSkuLockVo();
+                lockVo.setOrderSn(order.getOrder().getOrderSn());
+                List<OrderItemVo> collect = order.getOrderItems().stream().map(item -> {
+                    OrderItemVo itemVo = new OrderItemVo();
+                    itemVo.setSkuId(item.getSkuId());
+                    itemVo.setCount(item.getSkuQuantity());
+                    itemVo.setTitle(item.getSkuName());
+                    return itemVo;
+                }).collect(Collectors.toList());
+                lockVo.setLocks(collect);
+                // TODO: 2020-10-04 远程锁库存 很重要
+                R r = wmsFeignService.orderLockStock(lockVo);
+                if (r.getCode() == 0) {
+                    //锁定成功
+                    response.setOrderEntity(order.getOrder());
+                    return response;
+                } else {
+                    // 锁定失败
+                    String msg = (String) r.get("msg");
+                    throw new NoStockException(msg);
+                }
+            } else {
+                response.setCode(2);
+                return response;
             }
         }
-
-
-        return response;
     }
 
     /**
@@ -227,13 +248,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         List<OrderItemEntity> itemEntities = buildOrderItems(orderSn);
         //3.计算价格相关
         computerPrice(orderEntity, itemEntities);
-
+        createTo.setOrder(orderEntity);
+        createTo.setOrderItems(itemEntities);
 
         return createTo;
     }
 
     /**
      * 后端验证价格 防止前端篡改价格
+     *
      * @param orderEntity
      * @param items
      */
