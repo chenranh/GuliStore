@@ -27,6 +27,11 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
         <!-- 整合Spring-seesion 同时需要引入redis-starter -->
         <dependency>
             <groupId>org.springframework.session</groupId>

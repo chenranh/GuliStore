@@ -38,6 +38,7 @@ import com.atguigu.common.utils.Query;
 import com.atguigu.gulimall.order.dao.OrderDao;
 import com.atguigu.gulimall.order.entity.OrderEntity;
 import com.atguigu.gulimall.order.service.OrderService;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -153,7 +154,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
      * @param submitVo
      * @return
      */
-    @Transactional
+    //本地事务在分布式系统下只能控制住自己的回滚，控制不了其他服务的回滚
+    //分布式事务：最大原因 网络问题和分布式机器
+    @Transactional(isolation = Isolation.REPEATABLE_READ)//设置隔离级别
     @Override
     public SubmitOrderResponseVo submitOrder(OrderSubmitVo submitVo) {
         confirmVoThreadLocal.set(submitVo);
@@ -184,7 +187,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             BigDecimal payPrice = submitVo.getPayPrice();
             //金额对比
             if (Math.abs(payAmount.subtract(payPrice).doubleValue()) < 0.01) {
-                //3.保存订单
+                //todo 3.保存订单
                 saveOrder(order);
                 //4.库存锁定 只要有异常回滚订单数据
                 //订单号，所有订单项（skuid，skuname，num）
@@ -198,11 +201,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                     return itemVo;
                 }).collect(Collectors.toList());
                 lockVo.setLocks(collect);
-                // TODO: 2020-10-04 远程锁库存 很重要
+                // TODO: 2020-10-04 4.远程锁库存 很重要
+                //已经执行完成的远程服务不会回滚，库存成功了但是网络原因超时了，订单回滚，库存不会回滚
                 R r = wmsFeignService.orderLockStock(lockVo);
                 if (r.getCode() == 0) {
                     //锁定成功
                     response.setOrderEntity(order.getOrder());
+                    //todo 5.远程扣减积分 出异常
+                    //出问题订单回滚，库存不回滚
                     return response;
                 } else {
                     // 锁定失败
