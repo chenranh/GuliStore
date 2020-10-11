@@ -27,9 +27,9 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  *   	2. @EnableAspectJAutoProxy(exposeProxy = true) [对外暴露代理对象] 开启动态代理功能 而不是jdk默认的动态代理 即使没有接口也可以创建动态代理
  * 		3. 本类互调用代理对象		AopContext.currentProxy()
  *
- * seata控制分布式事务
+ * seata控制分布式事务  senta at模式（2pc模式）不适合高并发，加的锁太多
  *  1）每一个微服务先必须创建undo_log
- *  2）安装事务协调器 seata-server
+ *  2）下载安装事务协调器 seata-server
  *     1.common服务 导入依赖spring-cloud-alibaba-seata  seata-all 1.0
  *     2.启动seata-server 分布式事务里的协调器
  *          registry.conf注册中心配置  type = "nacos"

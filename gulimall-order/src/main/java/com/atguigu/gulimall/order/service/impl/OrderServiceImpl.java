@@ -16,7 +16,6 @@ import com.atguigu.gulimall.order.service.OrderItemService;
 import com.atguigu.gulimall.order.to.OrderCreateTo;
 import com.atguigu.gulimall.order.vo.*;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
-import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -157,7 +156,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
      */
     //本地事务在分布式系统下只能控制住自己的回滚，控制不了其他服务的回滚
     //分布式事务：最大原因 网络问题和分布式机器
-    @GlobalTransactional
+//    @GlobalTransactional seata的at模式（2pc的演化）不适应此高并发场景
     @Transactional(isolation = Isolation.REPEATABLE_READ)//设置隔离级别
     @Override
     public SubmitOrderResponseVo submitOrder(OrderSubmitVo submitVo) {
@@ -205,6 +204,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 lockVo.setLocks(collect);
                 // TODO: 2020-10-04 4.远程锁库存 很重要
                 //已经执行完成的远程服务不会回滚，库存成功了但是网络原因超时了，订单回滚，库存不会回滚
+                //为了保证高并发  库存服务自己回滚。可以发消息给库存服务
+                //库存服务本身页可以使用自动解锁模式。消息队列
                 R r = wmsFeignService.orderLockStock(lockVo);
                 if (r.getCode() == 0) {
                     //锁定成功

@@ -23,7 +23,7 @@ public interface WmsFeignService {
 	 * @param SkuIds
 	 * @return
 	 */
-	@PostMapping("/ware/waresku/hasStock")
+	@PostMapping("/ware/waresku/hasstock")
 	R getSkuHasStock(@RequestBody List<Long> SkuIds);
 
 

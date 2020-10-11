@@ -88,6 +88,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
      *
      * @param vo
      */
+//  @GlobalTransactional 后台管理系统使用senta at模式的分布式事务 senta at模式不适合高并发
     @Transactional
     @Override
     public void saveSpuInfo(SpuSaveVo vo) {
