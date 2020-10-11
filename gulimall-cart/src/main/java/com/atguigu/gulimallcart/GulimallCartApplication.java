@@ -9,7 +9,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 
 @EnableRedisHttpSession
 @EnableDiscoveryClient
-@EnableFeignClients
+@EnableFeignClients(basePackages = "com.atguigu.gulimallcart.feign")
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 public class GulimallCartApplication {
 

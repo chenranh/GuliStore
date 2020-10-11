@@ -1,10 +1,8 @@
 package com.atguigu.gulimallcart.controller;
 
-import com.atguigu.gulimallcart.interceptor.CartInterceptor;
 import com.atguigu.gulimallcart.service.CartService;
 import com.atguigu.gulimallcart.vo.Cart;
 import com.atguigu.gulimallcart.vo.CartItem;
-import com.atguigu.gulimallcart.vo.UserInfoTo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

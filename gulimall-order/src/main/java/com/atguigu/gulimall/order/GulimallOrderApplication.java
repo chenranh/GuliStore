@@ -26,6 +26,23 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  *   	1. 引入 spring-boot-starter-aop 它帮我们引入了aspectj
  *   	2. @EnableAspectJAutoProxy(exposeProxy = true) [对外暴露代理对象] 开启动态代理功能 而不是jdk默认的动态代理 即使没有接口也可以创建动态代理
  * 		3. 本类互调用代理对象		AopContext.currentProxy()
+ *
+ * seata控制分布式事务
+ *  1）每一个微服务先必须创建undo_log
+ *  2）安装事务协调器 seata-server
+ *     1.common服务 导入依赖spring-cloud-alibaba-seata  seata-all 1.0
+ *     2.启动seata-server 分布式事务里的协调器
+ *          registry.conf注册中心配置  type = "nacos"
+ *     3.所有想要用到分布式的事务的微服务使用seata datasourceproxy代理自己的数据源 配置文件配置代理数据源
+ *     4.每个微服务都必须导入 file.conf  registry.conf
+ *     file.conf中更改vgroup_mapping名称 当前服务名加fescar-service-group
+ *    5.启动服务测试
+ *    6.核心 给分布式大事务入口标注@GlobalTransactional
+ *    7.每个远程的小事务用@Transactional
+ *
+ *
+ *
+ *
  */
 
 @EnableAspectJAutoProxy(exposeProxy = true)//开启动态代理功能，对外暴露代理对象

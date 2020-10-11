@@ -13,6 +13,9 @@
     <description>公共依赖</description>
     <dependencies>
 
+
+
+
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
@@ -62,6 +65,13 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
+
+        <!--        分布式事务 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+        </dependency>
+
 <!--        服务注册/发现-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
