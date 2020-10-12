@@ -50,7 +50,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableRedisHttpSession
-@EnableFeignClients
+@EnableFeignClients(basePackages = "com.atguigu.gulimall.order.feign")
 public class GulimallOrderApplication {
 
     public static void main(String[] args) {

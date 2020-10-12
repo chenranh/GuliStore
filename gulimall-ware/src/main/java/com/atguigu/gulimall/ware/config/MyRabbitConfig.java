@@ -34,9 +34,9 @@ public class MyRabbitConfig {
 
 
 //-------------消息消费者测试-----------------------
-    @RabbitListener(queues = "stock.release.stock.queue")
-    public void handle(Channel channel, Message message) throws IOException {
-    }
+//    @RabbitListener(queues = "stock.release.stock.queue")
+//    public void handle(Channel channel, Message message) throws IOException {
+//    }
 
 
     //------------------------------创建一个交换机------------------------------

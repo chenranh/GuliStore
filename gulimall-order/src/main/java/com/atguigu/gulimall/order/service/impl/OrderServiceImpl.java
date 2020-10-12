@@ -212,6 +212,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                     response.setOrderEntity(order.getOrder());
                     //todo 5.远程扣减积分 出异常
                     //出问题订单回滚，库存不回滚
+                    int i=10/0;
                     return response;
                 } else {
                     // 锁定失败
@@ -223,6 +224,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 return response;
             }
         }
+    }
+
+    @Override
+    public OrderEntity getOrderByOrderSn(String orderSn) {
+        return this.getOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
     }
 
     /**
