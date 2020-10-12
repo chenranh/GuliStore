@@ -20,30 +20,6 @@ import java.util.Map;
 @Configuration
 public class MyMQConfig2 {
 
-    @Value("${myRabbitmq.MQConfig.queues}")
-    private String queues;
-
-    @Value("${myRabbitmq.MQConfig.eventExchange}")
-    private String eventExchange;
-
-    @Value("${myRabbitmq.MQConfig.routingKey}")
-    private String routingKey;
-
-    @Value("${myRabbitmq.MQConfig.delayQueue}")
-    private String delayQueue;
-
-    @Value("${myRabbitmq.MQConfig.createOrder}")
-    private String createOrder;
-
-    @Value("${myRabbitmq.MQConfig.ReleaseOther}")
-    private String ReleaseOther;
-
-    @Value("${myRabbitmq.MQConfig.ReleaseOtherKey}")
-    private String ReleaseOtherKey;
-
-    @Value("${myRabbitmq.MQConfig.ttl}")
-    private String ttl;
-
 
 //-------------------测试 消息在HelloController发送---------------------
 
@@ -63,8 +39,8 @@ public class MyMQConfig2 {
     public Queue orderDelayQueue() {
         Map<String, Object> arguments = new HashMap<>();
         //死信队列需要设置三个参数
-        arguments.put("x-dead-letter-exchange", "order-event-exchange");//死信路由  延迟队列绑定的路由
-        arguments.put("x-dead-letter-routing-key", "order-release-order");//死信路由键 延迟队列绑定的路由的路由键
+        arguments.put("x-dead-letter-exchange", "order-event-exchange");//订单死信路由  延迟队列绑定的路由
+        arguments.put("x-dead-letter-routing-key", "order-release-order");//订单死信路由键 延迟队列绑定的路由的路由键
         arguments.put("x-message-ttl", 60000);//消息过期时间
         Queue queue = new Queue("order.delay.queue", true, false, false, arguments);
         return queue;
@@ -115,25 +91,4 @@ public class MyMQConfig2 {
         return new Binding("order.release.order.queue", Binding.DestinationType.QUEUE, "order-event-exchange", "order-release-order", null);
     }
 
-
-
-
-    /**
-     * 订单释放直接和库存释放进行绑定
-     */
-    @Bean
-    public Binding orderReleaseOtherBinding() {
-
-        return new Binding(ReleaseOther, Binding.DestinationType.QUEUE, eventExchange, ReleaseOtherKey + ".#", null);
-    }
-
-    @Bean
-    public Queue orderSecKillQueue() {
-        return new Queue("order.seckill.order.queue", true, false, false);
-    }
-
-    @Bean
-    public Binding orderSecKillQueueBinding() {
-        return new Binding("order.seckill.order.queue", Binding.DestinationType.QUEUE, "order-event-exchange", "order.seckill.order", null);
-    }
 }
