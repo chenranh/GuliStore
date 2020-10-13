@@ -9,6 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import javax.annotation.PostConstruct;
+import java.util.Date;
+
 /**
  * <p>Title: MyRabbitConfig</p>
  * Description：rabbit确认机制配置   序列化方式配置
@@ -40,9 +43,6 @@ public class MyRabbitConfig {
     }
 
 
-
-
-
 //===========================================以下是消息确认部分============================================================
 
     /**
@@ -71,18 +71,31 @@ public class MyRabbitConfig {
      *      simple:
      *      acknowledge-mode: manual
      */
-//	@PostConstruct //MyRabbitConfig对象创建完以后，执行这个方法
+
+
+    /**
+     * 防止消息丢失总结
+     * 1.做好消息确认机制（两端消息确认 pulisher发送端和consumer消费端【手动确认】）
+     * 2.每一个发送的消息都在数据库做好记录，定期将失败的消息再次发送一次
+     */
+
+
+    @PostConstruct //MyRabbitConfig对象创建完以后，执行这个方法
     public void initRabbitTemplate() {
         /**
-         * 	设置确认回调  消息是否发送到broker
+         * 	设置确认回调  消息是否发送到broker，没有发送到尝试重试机制  rabbitmq服务器收到消息确认回调
+         * 	ack为true修改消息状态服务器收到消息  false则进行重试
          *  correlationData: 消息的唯一id
          *  ack： 消息是否成功收到
          * 	cause：失败的原因
          */
         rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> log.info("\n收到消息: " + correlationData + "\tack: " + ack + "\tcause： " + cause));
 
+
+
         /**
          * 设置消息抵达队列回调：可以很明确的知道那些消息失败了
+         * 失败了以后修改数据库mq_message表当前消息的状态，定期重发
          *只要消息没有投递给指定的队列，就触发这个失败回调，投递成功就不会回调
          * message: 投递失败的消息详细信息
          * replyCode: 回复的状态码
@@ -94,4 +107,27 @@ public class MyRabbitConfig {
                 "replyCode: " + replyCode +
                 "replyText:" + replyText + "exchange:" + exchange + "routerKey:" + routerKey));
     }
+
+
+        /**
+         *一个消息发送失败重试的示例
+         */
+//    public void send() {
+//        String context = "你好现在是 " + new Date() +"";
+//        System.out.println("HelloSender发送内容 : " + context);
+////        this.rabbitTemplate.setConfirmCallback(this);
+//        this.rabbitTemplate.setReturnCallback(this);
+//
+//        //为保证数据一致性，应先将数据保存到数据库当中
+//        this.rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
+//            if (!ack) {
+//                //先尝试重发机制
+//                System.out.println("HelloSender消息发送失败" + cause + correlationData.toString());
+//            } else {
+//                System.out.println("HelloSender 消息发送成功 ");
+//            }
+//        });
+//        this.rabbitTemplate.convertAndSend("hello", context);
+//    }
+
 }

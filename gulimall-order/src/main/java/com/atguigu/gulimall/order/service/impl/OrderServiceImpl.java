@@ -18,6 +18,7 @@ import com.atguigu.gulimall.order.service.OrderItemService;
 import com.atguigu.gulimall.order.to.OrderCreateTo;
 import com.atguigu.gulimall.order.vo.*;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -257,7 +258,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             OrderTo orderTo = new OrderTo();
             BeanUtil.copyProperties(orderEntity, orderTo);
             //发给MQ一个消息 用于解锁库存
-            rabbitTemplate.convertAndSend("order-event-exchange","order.release.other",orderTo);
+            try {
+                //todo 保证消息一定会发送出去，每一个消息都可以做好日志记录-->>
+                //-->数据库中有一张消息记录表mq_message，消息发送给mq之前保存消息的内容和消息的状态信息（新建 已发送 错误抵达 已抵达）
+                //todo 定期扫描数据库将失败的消息再发送一次
+                rabbitTemplate.convertAndSend("order-event-exchange","order.release.other",orderTo);
+            } catch (Exception e) {
+                //todo 将没发送成功的消息进行重试发送
+                e.printStackTrace();
+            }
         }
     }
 

@@ -66,7 +66,8 @@ public class StockReleaseListener {
 		System.out.println("收到订单关闭的消息，准备解锁库存");
 		try {
 			wareSkuService.unlockStock(orderTo);
-			//消费端 消息执行成功ack确认
+			//消费端 消息执行成功ack确认  在收到ack确认之前宕机可能会造成mq消息重复问题
+			//  解决就是把接口设置成幂等的  此业务使用的是一个锁状态字段，解锁后更新状态为已解锁
 			channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
 		} catch (Exception e) {
 			//当前消息执行失败 重新回队
