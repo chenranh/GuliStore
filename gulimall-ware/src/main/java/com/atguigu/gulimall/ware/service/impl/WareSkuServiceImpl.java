@@ -80,7 +80,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
                 OrderVo data = r.getData(new TypeReference<OrderVo>() {
                 });
                 if (data==null||data.getStatus()==4){
-                    //订单已经被取消了  才能解锁库存
+                    //订单已经被取消了  才能解锁库存  这里和订单服务的取消订单有直接的联系！！！取消订单后，这里会自动解锁库存
                     if(byId.getLockStatus()==1){
                         //当前库存工作单详情 状态1 已锁定但是未解锁才可以解锁
                         unLock(detail.getSkuId(), detail.getWareId(), detail.getSkuNum(), detailId);

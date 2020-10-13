@@ -16,6 +16,7 @@ import com.atguigu.gulimall.order.service.OrderItemService;
 import com.atguigu.gulimall.order.to.OrderCreateTo;
 import com.atguigu.gulimall.order.vo.*;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -73,6 +74,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     @Autowired
     private OrderItemService orderItemService;
 
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -212,7 +215,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                     response.setOrderEntity(order.getOrder());
                     //todo 5.远程扣减积分 出异常
                     //出问题订单回滚，库存不回滚
-                    int i=10/0;
+                    //int i=10/0; 为了测试库存锁定后 后面的流程出现问题 库存服务使用rabbitmq解锁库存
+                    //todo 6.订单创建成功发送消息给MQ 过期不支付就会取消订单
+                    rabbitTemplate.convertAndSend("order-event-exchange","order.create.order",order.getOrder());
                     return response;
                 } else {
                     // 锁定失败
@@ -229,6 +234,24 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     @Override
     public OrderEntity getOrderByOrderSn(String orderSn) {
         return this.getOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
+    }
+
+    /**
+     * 关闭订单
+     * 先查询订单的当前状态有没有完成
+     * @param entity
+     */
+    @Override
+    public void closeOrder(OrderEntity entity) {
+        //查询当前这个订单的最新状态
+        OrderEntity orderEntity = this.getById(entity.getId());
+        if (orderEntity.getStatus()==OrderStatusEnum.CREATE_NEW.getCode()){
+            //关单
+            OrderEntity update = new OrderEntity();
+            update.setId(entity.getId());
+            update.setStatus(OrderStatusEnum.CANCLED.getCode());
+            this.updateById(update);
+        }
     }
 
     /**
