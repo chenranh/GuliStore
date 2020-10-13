@@ -84,7 +84,7 @@ public class MyRabbitConfig {
     public void initRabbitTemplate() {
         /**
          * 	设置确认回调  消息是否发送到broker，没有发送到尝试重试机制  rabbitmq服务器收到消息确认回调
-         * 	ack为true修改消息状态服务器收到消息  false则进行重试
+         * 	ack为true修改消息状态（已抵达）服务器收到消息  false则进行重试
          *  correlationData: 消息的唯一id
          *  ack： 消息是否成功收到
          * 	cause：失败的原因
@@ -95,7 +95,7 @@ public class MyRabbitConfig {
 
         /**
          * 设置消息抵达队列回调：可以很明确的知道那些消息失败了
-         * 失败了以后修改数据库mq_message表当前消息的状态，定期重发
+         * 失败了以后修改数据库mq_message表当前消息的状态（错误抵达），定期重发
          *只要消息没有投递给指定的队列，就触发这个失败回调，投递成功就不会回调
          * message: 投递失败的消息详细信息
          * replyCode: 回复的状态码

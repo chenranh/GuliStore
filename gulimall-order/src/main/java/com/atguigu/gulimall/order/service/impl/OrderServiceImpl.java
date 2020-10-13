@@ -259,8 +259,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             BeanUtil.copyProperties(orderEntity, orderTo);
             //发给MQ一个消息 用于解锁库存
             try {
-                //todo 保证消息一定会发送出去，每一个消息都可以做好日志记录-->>
-                //-->数据库中有一张消息记录表mq_message，消息发送给mq之前保存消息的内容和消息的状态信息（新建 已发送 错误抵达 已抵达）
+                //todo 保证消息一定会发送出去，每一个消息都可以做好日志记录
+                //消息丢失情景1：消息发送出去，由于网络原因没有抵达服务器
+                //解决：数据库中有一张消息记录表mq_message，消息发送给mq之前保存消息的内容和消息的状态信息（新建 已发送 错误抵达 已抵达）
                 //todo 定期扫描数据库将失败的消息再发送一次
                 rabbitTemplate.convertAndSend("order-event-exchange","order.release.other",orderTo);
             } catch (Exception e) {
