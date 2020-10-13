@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.ware.listener;
 
 import com.alibaba.fastjson.TypeReference;
+import com.atguigu.common.to.mq.OrderTo;
 import com.atguigu.common.to.mq.StockDetailTo;
 import com.atguigu.common.to.mq.StockLockedTo;
 import com.atguigu.common.utils.R;
@@ -51,4 +52,28 @@ public class StockReleaseListener {
 		}
 
 	}
+
+	/**
+	 * 监听订单超时 释放订单服务后给库存服务发一个库存解锁消息
+	 * 同一个队列可以接收多种不同的对象，进行不同的处理
+	 * @param orderTo
+	 * @param message
+	 * @param channel
+	 * @throws IOException
+	 */
+	@RabbitListener
+	public void handleStockCloseRelease(OrderTo orderTo, Message message, Channel channel) throws IOException {
+		System.out.println("收到订单关闭的消息，准备解锁库存");
+		try {
+			wareSkuService.unlockStock(orderTo);
+			//消费端 消息执行成功ack确认
+			channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+		} catch (Exception e) {
+			//当前消息执行失败 重新回队
+			channel.basicReject(message.getMessageProperties().getDeliveryTag(),true);
+		}
+
+	}
+
+
 }

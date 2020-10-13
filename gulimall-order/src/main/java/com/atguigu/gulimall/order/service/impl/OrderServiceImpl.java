@@ -1,7 +1,9 @@
 package com.atguigu.gulimall.order.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.enume.OrderStatusEnum;
+import com.atguigu.common.to.mq.OrderTo;
 import com.atguigu.common.utils.R;
 import com.atguigu.common.vo.MemberRsepVo;
 import com.atguigu.gulimall.order.constant.OrderConstant;
@@ -249,8 +251,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             //关单
             OrderEntity update = new OrderEntity();
             update.setId(entity.getId());
+            //关闭订单 改变订单的状态
             update.setStatus(OrderStatusEnum.CANCLED.getCode());
             this.updateById(update);
+            OrderTo orderTo = new OrderTo();
+            BeanUtil.copyProperties(orderEntity, orderTo);
+            //发给MQ一个消息 用于解锁库存
+            rabbitTemplate.convertAndSend("order-event-exchange","order.release.other",orderTo);
         }
     }
 

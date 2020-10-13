@@ -73,7 +73,9 @@ public class MyRabbitConfig {
         Map<String, Object> arguments = new HashMap<>();
         //死信队列需要设置三个参数
         arguments.put("x-dead-letter-exchange", "stock-event-exchange");//库存死信路由  延迟队列绑定的路由
-        arguments.put("x-dead-letter-routing-key", "stock-release");//库存死信路由键 延迟队列绑定的路由的路由键
+        //库存死信路由键 延迟队列绑定的路由的路由键
+        //相当于延时队列里的消息过期后 会把消息通过路由键绑定再发给路由  这时候延时队列发送消息相当于一个生产者
+        arguments.put("x-dead-letter-routing-key", "stock.release");
         arguments.put("x-message-ttl", 120000);//消息过期时间
         //String name, boolean durable, boolean exclusive, boolean autoDelete
         return new Queue("stock.delay.queue", true, false,false,arguments);
