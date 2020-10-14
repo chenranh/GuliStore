@@ -80,7 +80,7 @@ public class MyRabbitConfig {
      */
 
 
-    @PostConstruct //MyRabbitConfig对象创建完以后，执行这个方法
+    //@PostConstruct //MyRabbitConfig对象创建完以后，执行这个方法
     public void initRabbitTemplate() {
         /**
          * 	设置确认回调  消息是否发送到broker，没有发送到尝试重试机制  rabbitmq服务器收到消息确认回调

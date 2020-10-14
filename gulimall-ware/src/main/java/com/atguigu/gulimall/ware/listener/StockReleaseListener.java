@@ -11,6 +11,7 @@ import com.atguigu.gulimall.ware.service.WareSkuService;
 import com.atguigu.gulimall.ware.vo.OrderVo;
 import com.rabbitmq.client.Channel;
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class StockReleaseListener {
 	 * @param to
 	 * @param message
 	 */
-	@RabbitListener
+	@RabbitHandler
 	public void handleStockLockRelease(StockLockedTo to, Message message, Channel channel) throws IOException {
 		System.out.println("收到解锁库存的消息");
 		try {
@@ -61,7 +62,7 @@ public class StockReleaseListener {
 	 * @param channel
 	 * @throws IOException
 	 */
-	@RabbitListener
+	@RabbitHandler
 	public void handleStockCloseRelease(OrderTo orderTo, Message message, Channel channel) throws IOException {
 		System.out.println("收到订单关闭的消息，准备解锁库存");
 		try {
