@@ -1,114 +1,129 @@
 package com.atguigu.gulimall.order.config;
 
-import com.atguigu.gulimall.order.entity.OrderEntity;
-import com.rabbitmq.client.Channel;
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * 创建两个队列和一个交换机，三个绑定关系  参考延迟死信队列升级图
- * Description：容器中的所有bean都会自动创建到RabbitMQ中 [RabbitMQ没有这个队列、交换机、绑定]
- * 相当于GulimallOrderApplicationTests类里的创建消息队列，路由，绑定消息队列和路由
+ * 2020-10-14 引用配置 作为参考
+ * rabbitMq的队列交换机配置
+ *
+ * @author 孙启新
+ * <br>FileName: MyRabbitMqConfig
+ * <br>Date: 2020/08/12 11:07:22
  */
 @Configuration
 public class MyMQConfig2 {
-
-
-//-------------------测试 消息在HelloController发送---------------------
-
-//    @RabbitListener(queues = "order.release.order.queue")
-//    public void listener(OrderEntity orderEntity, Channel channel, Message message) throws IOException {
-//        System.out.println("收到过期的订单信息：准备关闭订单"+orderEntity.getOrderSn());
-//        //消费端手动收到消息确认
-//        channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
-//    }
-
-//--------------------------------两个队列-------------------------------
     /**
-     * String name, boolean durable, boolean exclusive, boolean autoDelete,  @Nullable Map<String, Object> arguments
-     * 延迟队列
+     * 交换机名称
      */
-    @Bean
-    public Queue orderDelayQueue() {
-        Map<String, Object> arguments = new HashMap<>();
-        //死信队列需要设置三个参数
-        arguments.put("x-dead-letter-exchange", "order-event-exchange");//订单死信路由  延迟队列绑定的路由
-        //订单死信路由键 延迟队列绑定的路由的路由键
-        //相当于延时队列里的消息过期后 会把消息通过路由键绑定再发给路由  这时候延时队列发送消息相当于一个生产者
-        arguments.put("x-dead-letter-routing-key", "order.release.order");
-        arguments.put("x-message-ttl", 60000);//消息过期时间
-        Queue queue = new Queue("order.delay.queue", true, false, false, arguments);
-        return queue;
-    }
-
+    public static final String ORDER_EVENT_EXCHANGE = "order.event.exchange";
     /**
-     * 普通的队列
-     * @return
+     * 延时队列名称
      */
-    @Bean
-    public Queue orderReleaseOrderQueue() {
-        Queue queue = new Queue("order.release.order.queue", true, false, false);
-        return queue;
-    }
-
-//--------------------------------一个交换机-------------------------------
+    public static final String ORDER_DELAY_QUEUE = "order.delay.queue";
+    /**
+     * 秒杀队列名称
+     */
+    public static final String ORDER_SECKILL_QUEUE = "order.seckill.queue";
+    /**
+     * 死信队列名称
+     */
+    public static final String ORDER_DEAD_QUEUE = "order.dead.queue";
+    /**
+     * 路由到延时队列使用的路由键
+     */
+    public static final String ORDER_DELAY_KEY = "order.create.order";
+    /**
+     * 路由到秒杀队列使用的路由键
+     */
+    public static final String ORDER_SECKILL_KEY = "order.seckill.order";
+    /**
+     * 路由到死信队列使用的路由键
+     */
+    public static final String ORDER_DEAD_KEY = "order.dead.key";
 
     /**
-     * String name, boolean durable, boolean autoDelete, Map<String, Object> arguments
-     *使用TopicExchange交换机  模糊匹配
-     * @return
+     * 创建一个交换机
+     *
+     * @return 交换机
      */
     @Bean
     public Exchange orderEventExchange() {
-        return new TopicExchange("order-event-exchange", true, false);
-    }
-
-
-//--------------------------------三个绑定关系-----------------------------------------------
-
-    /**
-     * String destination, DestinationType destinationType, String exchange, String routingKey, @Nullable Map<String, Object> arguments
-     * 第一个绑定 交换机和延迟队列的绑定
-     */
-    @Bean
-    public Binding orderCreateOrderBinding() {
-
-        return new Binding("order.delay.queue", Binding.DestinationType.QUEUE, "order-event-exchange", "order.create.order", null);
+        return ExchangeBuilder.topicExchange(ORDER_EVENT_EXCHANGE).durable(true).build();
     }
 
     /**
-     * 第二个绑定  交换机和普通队列的绑定
-     * @return
+     * 创建一个延时队列(延时30分钟)
+     *
+     * @return 延时队列
      */
     @Bean
-    public Binding orderReleaseOrderBinding() {
-
-        return new Binding("order.release.order.queue", Binding.DestinationType.QUEUE, "order-event-exchange", "order.release.order", null);
+    public Queue orderDelayQueue() {
+        return QueueBuilder.durable(ORDER_DELAY_QUEUE).ttl(60000 * 30).deadLetterExchange(ORDER_EVENT_EXCHANGE).deadLetterRoutingKey(ORDER_DEAD_KEY).build();
     }
 
 
     /**
-     * 第三个绑定  订单释放直接和库存释放进行绑定
-     * 因为订单创建成功后可能因为卡顿和消息延迟的原因，订单解锁时间长于库存解锁，会导致库存解锁到时间后对订单状态
-     * 判断有误认为是新建状态，消息被消费库存一直得不到释放
-     * 解决：只要订单释放了就给order-event-exchange交换机发消息，交换机再给库存系统的释放队列发消息解锁库存
-     * @return
+     * 创建一个秒杀队列
+     *
+     * @return 秒杀队列
      */
     @Bean
-    public Binding orderReleaseOtherBinding() {
+    public Queue orderSeckillQueue() {
+        return QueueBuilder.durable(ORDER_SECKILL_QUEUE).build();
+    }
 
-        return new Binding("stock.release.stock.queue",
-                Binding.DestinationType.QUEUE,
-                "order-event-exchange",
-                "order.release.other.#", null);
+    /**
+     * 创建一个死信队列用于接收延时队列过期的消息
+     *
+     * @return 死信队列
+     */
+    @Bean
+    public Queue orderDeadQueue() {
+        return QueueBuilder.durable(ORDER_DEAD_QUEUE).build();
+    }
+
+    /**
+     * 将交换机与延时队列绑定
+     *
+     * @return Binding
+     */
+    @Bean
+    public Binding bindingDelayQueue() {
+        return new Binding(ORDER_DELAY_QUEUE, Binding.DestinationType.QUEUE, ORDER_EVENT_EXCHANGE, ORDER_DELAY_KEY, null);
+    }
+
+    /**
+     * 将交换机与死信队列绑定
+     *
+     * @return Binding
+     */
+    @Bean
+    public Binding bindingDeadQueue() {
+        return new Binding(ORDER_DEAD_QUEUE, Binding.DestinationType.QUEUE, ORDER_EVENT_EXCHANGE, ORDER_DEAD_KEY, null);
+    }
+
+    /**
+     * 将订单服务的交换机和库存服务的死信队列绑定（出现网络不通畅等问题解锁库存比关闭订单慢了，那就可以使用该绑定再次发送一次消息，直接到达解锁库存）
+     *
+     * @return Binding
+     */
+    @Bean
+    public Binding bindingWareDeadQueue() {
+        return new Binding("ware.dead.queue", Binding.DestinationType.QUEUE, ORDER_EVENT_EXCHANGE, "ware.dead.#", null);
     }
 
 
+    /**
+     *
+     * 将交换机与秒杀队列绑定
+     *
+     * @return Binding
+     */
+    @Bean
+    public Binding bindingSeckillQueue() {
+        return new Binding(ORDER_SECKILL_QUEUE, Binding.DestinationType.QUEUE, ORDER_EVENT_EXCHANGE, "order.seckill.order", null);
+    }
 }

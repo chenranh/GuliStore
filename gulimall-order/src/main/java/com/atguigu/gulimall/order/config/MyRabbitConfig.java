@@ -84,7 +84,7 @@ public class MyRabbitConfig {
     public void initRabbitTemplate() {
         /**
          * 	设置确认回调  消息是否发送到broker，没有发送到尝试重试机制  rabbitmq服务器收到消息确认回调
-         * 	ack为true修改消息状态（已抵达）服务器收到消息  false则进行重试
+         * 	ack为true修改消息状态（已抵达）服务器收到消息  false则进行重试（在MyRabbitConfig2的代码实现中没有使用重试）
          *  correlationData: 消息的唯一id
          *  ack： 消息是否成功收到
          * 	cause：失败的原因
@@ -110,7 +110,7 @@ public class MyRabbitConfig {
 
 
         /**
-         *一个消息发送失败重试的示例
+         *一个消息发送失败重试的示例，详细见MyRabbitConfig2
          */
 //    public void send() {
 //        String context = "你好现在是 " + new Date() +"";

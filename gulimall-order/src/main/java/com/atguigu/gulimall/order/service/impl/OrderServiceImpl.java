@@ -19,6 +19,7 @@ import com.atguigu.gulimall.order.to.OrderCreateTo;
 import com.atguigu.gulimall.order.vo.*;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -220,7 +221,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                     //出问题订单回滚，库存不回滚
                     //int i=10/0; 为了测试库存锁定后 后面的流程出现问题 库存服务使用rabbitmq解锁库存
                     //todo 6.订单创建成功发送消息给MQ 过期不支付就会取消订单
-                    rabbitTemplate.convertAndSend("order-event-exchange","order.create.order",order.getOrder());
+                    rabbitTemplate.convertAndSend("order-event-exchange","order.create.order",order.getOrder(), new CorrelationData(UUID.randomUUID().toString()));
                     return response;
                 } else {
                     // 锁定失败
@@ -259,11 +260,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             BeanUtil.copyProperties(orderEntity, orderTo);
             //发给MQ一个消息 用于解锁库存
             try {
-                //todo 保证消息一定会发送出去，每一个消息都可以做好日志记录
+                //todo 保证消息一定会发送出去，每一个消息都可以做好日志记录，重写消息的id
                 //消息丢失情景1：消息发送出去，由于网络原因没有抵达服务器
-                //解决：数据库中有一张消息记录表mq_message，消息发送给mq之前保存消息的内容和消息的状态信息（新建 已发送 错误抵达 已抵达）
+                //解决：数据库中有一张消息记录表mq_message，消息发送给mq在消息确认中保存消息的内容和消息的状态信息（0新建 1错误抵达 ）,在MyRabbitConfig2有实现
                 //todo 定期扫描数据库将失败的消息再发送一次
-                rabbitTemplate.convertAndSend("order-event-exchange","order.release.other",orderTo);
+                rabbitTemplate.convertAndSend("order-event-exchange","order.release.other",orderTo, new CorrelationData(UUID.randomUUID().toString()));
             } catch (Exception e) {
                 //todo 将没发送成功的消息进行重试发送
                 e.printStackTrace();
