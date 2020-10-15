@@ -22,7 +22,7 @@ public class OrderCloseListener {
         System.out.println("收到过期的订单信息，准备关闭订单"+entity.getOrderSn());
         try {
             orderService.closeOrder(entity);
-            // 手动调用支付宝收单，保证交易一关闭那边就不能支付
+            // 手动调用支付宝收单(AlipayTemplate里的alipayTradeClose方法），保证交易一关闭那边就不能支付
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         } catch (Exception e) {
             channel.basicReject(message.getMessageProperties().getDeliveryTag(),true);
