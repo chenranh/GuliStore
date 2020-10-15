@@ -17,7 +17,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * <p>Title: OrderPayedListener</p>
+ * 防止伪造显示支付完成  支付宝支付完成后给本地服务一直发消息，直到本地服务给回复success
+ *支付完成后，更改状态为已付款
  * Description：
  */
 @Slf4j
