@@ -1,11 +1,14 @@
 package com.atguigu.gulimall.order.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.math.BigDecimal;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+
 import lombok.Data;
 
 /**
@@ -21,85 +24,87 @@ public class OrderItemEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * order_id
 	 */
 	private Long orderId;
 	/**
-	 * $column.comments
+	 * order_sn
 	 */
 	private String orderSn;
 	/**
-	 * $column.comments
+	 * spu_id
 	 */
 	private Long spuId;
 	/**
-	 * $column.comments
+	 * spu_name
 	 */
 	private String spuName;
 	/**
-	 * $column.comments
+	 * spu_pic
 	 */
 	private String spuPic;
 	/**
-	 * $column.comments
+	 * 品牌
 	 */
 	private String spuBrand;
 	/**
-	 * $column.comments
+	 * 商品分类id
 	 */
 	private Long catagoryId;
 	/**
-	 * $column.comments
+	 * 商品sku编号
 	 */
 	private Long skuId;
 	/**
-	 * $column.comments
+	 * 商品sku名字
 	 */
 	private String skuName;
 	/**
-	 * $column.comments
+	 * 商品sku图片
 	 */
 	private String skuPic;
 	/**
-	 * $column.comments
+	 * 商品sku价格
 	 */
 	private BigDecimal skuPrice;
 	/**
-	 * $column.comments
+	 * 商品购买的数量
 	 */
 	private Integer skuQuantity;
 	/**
-	 * $column.comments
+	 * 商品销售属性组合（JSON）
 	 */
 	private String skuAttrsVals;
 	/**
-	 * $column.comments
+	 * 商品促销分解金额
 	 */
 	private BigDecimal promotionAmount;
 	/**
-	 * $column.comments
+	 * 优惠券优惠分解金额
 	 */
 	private BigDecimal couponAmount;
 	/**
-	 * $column.comments
+	 * 积分优惠分解金额
 	 */
 	private BigDecimal integrationAmount;
 	/**
-	 * $column.comments
+	 * 该商品经过优惠后的分解金额
 	 */
 	private BigDecimal realAmount;
 	/**
-	 * $column.comments
+	 * 赠送积分
 	 */
 	private Integer giftIntegration;
 	/**
-	 * $column.comments
+	 * 赠送成长值
 	 */
 	private Integer giftGrowth;
+
+
 
 }

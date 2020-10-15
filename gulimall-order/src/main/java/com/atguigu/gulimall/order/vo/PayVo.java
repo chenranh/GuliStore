@@ -1,0 +1,25 @@
+package com.atguigu.gulimall.order.vo;
+
+import lombok.Data;
+
+@Data
+public class PayVo {
+    /**
+     * 商户订单号 必填(字段名不可改，支付宝只接受此字段名)
+     */
+    private String out_trade_no;
+    /**
+     * 订单名称 必填(字段名不可改，支付宝只接受此字段名)
+     */
+    private String subject;
+    /**
+     * 付款金额 必填(字段名不可改，支付宝只接受此字段名)
+     */
+    private String total_amount;
+    /**
+     * 商品描述 可空(字段名不可改，支付宝只接受此字段名)
+     */
+    private String body;
+
+
+}

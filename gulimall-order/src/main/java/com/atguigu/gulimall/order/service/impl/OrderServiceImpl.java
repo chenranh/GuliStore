@@ -8,6 +8,7 @@ import com.atguigu.common.utils.R;
 import com.atguigu.common.vo.MemberRsepVo;
 import com.atguigu.gulimall.order.constant.OrderConstant;
 import com.atguigu.gulimall.order.entity.OrderItemEntity;
+import com.atguigu.gulimall.order.entity.PaymentInfoEntity;
 import com.atguigu.gulimall.order.exception.NoStockException;
 import com.atguigu.gulimall.order.feign.CartFeignService;
 import com.atguigu.gulimall.order.feign.MembenFeignService;
@@ -15,6 +16,7 @@ import com.atguigu.gulimall.order.feign.ProductFeignService;
 import com.atguigu.gulimall.order.feign.WmsFeignService;
 import com.atguigu.gulimall.order.interceptor.LoginUserInterceptor;
 import com.atguigu.gulimall.order.service.OrderItemService;
+import com.atguigu.gulimall.order.service.PaymentInfoService;
 import com.atguigu.gulimall.order.to.OrderCreateTo;
 import com.atguigu.gulimall.order.vo.*;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
@@ -80,6 +82,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private PaymentInfoService paymentInfoService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -221,7 +226,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                     //出问题订单回滚，库存不回滚
                     //int i=10/0; 为了测试库存锁定后 后面的流程出现问题 库存服务使用rabbitmq解锁库存
                     //todo 6.订单创建成功发送消息给MQ 过期不支付就会取消订单
-                    rabbitTemplate.convertAndSend("order-event-exchange","order.create.order",order.getOrder(), new CorrelationData(UUID.randomUUID().toString()));
+                    rabbitTemplate.convertAndSend("order-event-exchange", "order.create.order", order.getOrder(), new CorrelationData(UUID.randomUUID().toString()));
                     return response;
                 } else {
                     // 锁定失败
@@ -243,13 +248,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     /**
      * 关闭订单
      * 先查询订单的当前状态有没有完成
+     *
      * @param entity
      */
     @Override
     public void closeOrder(OrderEntity entity) {
         //查询当前这个订单的最新状态
         OrderEntity orderEntity = this.getById(entity.getId());
-        if (orderEntity.getStatus()==OrderStatusEnum.CREATE_NEW.getCode()){
+        if (orderEntity.getStatus() == OrderStatusEnum.CREATE_NEW.getCode()) {
             //关单
             OrderEntity update = new OrderEntity();
             update.setId(entity.getId());
@@ -264,12 +270,69 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 //消息丢失情景1：消息发送出去，由于网络原因没有抵达服务器
                 //解决：数据库中有一张消息记录表mq_message，消息发送给mq在消息确认中保存消息的内容和消息的状态信息（0新建 1错误抵达 ）,在MyRabbitConfig2有实现
                 //todo 定期扫描数据库将失败的消息再发送一次
-                rabbitTemplate.convertAndSend("order-event-exchange","order.release.other",orderTo, new CorrelationData(UUID.randomUUID().toString()));
+                rabbitTemplate.convertAndSend("order-event-exchange", "order.release.other", orderTo, new CorrelationData(UUID.randomUUID().toString()));
             } catch (Exception e) {
                 //todo 将没发送成功的消息进行重试发送
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public PayVo getOrderPay(String orderSn) {
+        PayVo payVo = new PayVo();
+        OrderEntity order = this.getOrderByOrderSn(orderSn);
+        //BigDecimal.ROUND_UP 意思是66.00001保留两位成66.01
+        BigDecimal bigDecimal = order.getPayAmount().setScale(2, BigDecimal.ROUND_UP);
+        payVo.setTotal_amount(bigDecimal.toString());
+        payVo.setOut_trade_no(order.getOrderSn());
+        List<OrderItemEntity> order_sn = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", orderSn));
+        OrderItemEntity entity = order_sn.get(0);
+        payVo.setSubject(entity.getSkuName());
+        payVo.setBody(entity.getSkuAttrsVals());
+
+        return payVo;
+    }
+
+    @Override
+    public PageUtils queryPageWithItem(Map<String, Object> params) {
+        MemberRsepVo rsepVo = LoginUserInterceptor.threadLocal.get();
+        IPage<OrderEntity> page = this.page(
+                new Query<OrderEntity>().getPage(params),
+                // 查询这个用户的最新订单 [降序排序]
+                new QueryWrapper<OrderEntity>().eq("member_id",rsepVo.getId()).orderByDesc("id")
+        );
+        List<OrderEntity> order_sn = page.getRecords().stream().map(order -> {
+            // 查询这个订单关联的所有订单项
+            List<OrderItemEntity> orderSn = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", order.getOrderSn()));
+            order.setItemEntities(orderSn);
+            return order;
+        }).collect(Collectors.toList());
+        page.setRecords(order_sn);
+        return new PageUtils(page);
+    }
+
+    @Override
+    public String handlePayResult(PayAsyncVo vo) {
+        // 1.保存交易流水
+        PaymentInfoEntity infoEntity = new PaymentInfoEntity();
+        infoEntity.setAlipayTradeNo(vo.getTrade_no());
+        infoEntity.setOrderSn(vo.getOut_trade_no());
+        //		TRADE_SUCCESS
+        infoEntity.setPaymentStatus(vo.getTrade_status());
+        infoEntity.setCallbackTime(vo.getNotify_time());
+        infoEntity.setSubject(vo.getSubject());
+        infoEntity.setTotalAmount(new BigDecimal(vo.getTotal_amount()));
+        infoEntity.setCreateTime(vo.getGmt_create());
+        paymentInfoService.save(infoEntity);
+
+        // 2.修改订单状态信息
+        if(vo.getTrade_status().equals("TRADE_SUCCESS") || vo.getTrade_status().equals("TRADE_FINISHED")){
+            // 支付成功
+            String orderSn = vo.getOut_trade_no();
+            this.baseMapper.updateOrderStatus(orderSn, OrderStatusEnum.PAYED.getCode());
+        }
+        return "success";
     }
 
     /**

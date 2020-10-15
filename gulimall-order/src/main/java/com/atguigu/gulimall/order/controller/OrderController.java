@@ -27,6 +27,17 @@ public class OrderController {
 
 
     /**
+     * 分页查询当前登录的用户的所有订单信息
+     */
+    @PostMapping("/listWithItem")
+    public R listWithItem(@RequestBody Map<String, Object> params){
+        PageUtils page = orderService.queryPageWithItem(params);
+
+        return R.ok().put("page", page);
+    }
+
+
+    /**
      * 查询订单的状态
      * @param orderSn
      * @return

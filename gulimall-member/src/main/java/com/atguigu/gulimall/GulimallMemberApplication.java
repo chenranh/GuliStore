@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
  * 想要调用别的事务
@@ -58,6 +59,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  *
  *
  */
+@EnableRedisHttpSession //开启springsession
 @EnableFeignClients(basePackages ="com.atguigu.gulimall.feign")
 @SpringBootApplication
 @EnableDiscoveryClient

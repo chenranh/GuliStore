@@ -10,7 +10,7 @@ import lombok.Data;
 
 /**
  * ֧????Ϣ?
- * 
+ *
  * @author yuke
  * @email 627617510@gmail.com
  * @date 2020-08-23 18:18:25
@@ -19,50 +19,49 @@ import lombok.Data;
 @TableName("oms_payment_info")
 public class PaymentInfoEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
-
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * 订单号（对外业务号）
 	 */
 	private String orderSn;
 	/**
-	 * $column.comments
+	 * 订单id
 	 */
 	private Long orderId;
 	/**
-	 * $column.comments
+	 * 支付宝交易流水号
 	 */
 	private String alipayTradeNo;
 	/**
-	 * $column.comments
+	 * 支付总金额
 	 */
 	private BigDecimal totalAmount;
 	/**
-	 * $column.comments
+	 * 交易内容
 	 */
 	private String subject;
 	/**
-	 * $column.comments
+	 * 支付状态
 	 */
 	private String paymentStatus;
 	/**
-	 * $column.comments
+	 * 创建时间
 	 */
 	private Date createTime;
 	/**
-	 * $column.comments
+	 * 确认时间
 	 */
 	private Date confirmTime;
 	/**
-	 * $column.comments
+	 * 回调内容
 	 */
 	private String callbackContent;
 	/**
-	 * $column.comments
+	 * 回调时间
 	 */
 	private Date callbackTime;
 

@@ -32,6 +32,13 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
+        <!--支付宝支付依赖-->
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+            <version>4.10.90.ALL</version>
+        </dependency>
+
         <!-- 整合Spring-seesion 同时需要引入redis-starter -->
         <dependency>
             <groupId>org.springframework.session</groupId>
