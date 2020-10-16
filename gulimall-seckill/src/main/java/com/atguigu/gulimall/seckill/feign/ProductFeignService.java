@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * Description：
  * date：2020/7/6 19:16
  */
-@FeignClient("mall-product")
+@FeignClient("gulimall-product")
 public interface ProductFeignService {
 
 	@RequestMapping("/product/skuinfo/info/{skuId}")

@@ -25,6 +25,7 @@ public class SeckillSkuScheduled {
     @Autowired
     SeckillService seckillService;
 
+    //// TODO: 2020-10-16 上架幂等性 上架了就不能再上架了
     @Scheduled(cron = "0 0 3 * * ?")
     public void uploadSeckillSkuLatest3Days(){
         //1.重复上架无需处理
