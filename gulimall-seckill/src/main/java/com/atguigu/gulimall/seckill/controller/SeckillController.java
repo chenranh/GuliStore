@@ -35,12 +35,19 @@ public class SeckillController {
 		return R.ok().setData(vos);
 	}
 
+	/**
+	 * 获取当前sku的秒杀信息
+	 * SkuInfoServiceImpl里item()方法里加载商品前端页面显示远程调用用到
+	 * @param skuId
+	 * @return
+	 */
 	@ResponseBody
 	@GetMapping("/sku/seckill/{skuId}")
 	public R getSkuSeckillInfo(@PathVariable("skuId") Long skuId){
 		SeckillSkuRedisTo to = seckillService.getSkuSeckillInfo(skuId);
 		return R.ok().setData(to);
 	}
+
 
 	@GetMapping("/kill")
 	public String secKill(@RequestParam("killId") String killId, @RequestParam("key") String key, @RequestParam("num") Integer num, Model model){

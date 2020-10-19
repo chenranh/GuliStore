@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -70,7 +71,8 @@ public class SeckillServiceImpl implements SeckillService {
 
     /**
      * 返回当前时间参与秒杀的商品
-     *  前端页面显示
+     * 前端首页页面显示
+     *
      * @return
      */
     @Override
@@ -107,10 +109,40 @@ public class SeckillServiceImpl implements SeckillService {
         return null;
     }
 
+    /**
+     * 获取某个商品的秒杀信息
+     * 单个sku商品显示秒杀信息
+     * @param skuId
+     * @return
+     */
     @Override
     public SeckillSkuRedisTo getSkuSeckillInfo(Long skuId) {
+        //1.找到所有需要参与秒杀的商品的key
+        BoundHashOperations<String, String, String> hashOps = stringRedisTemplate.boundHashOps(SKUKILL_CACHE_PREFIX);
+        Set<String> keys = hashOps.keys();
+        if (CollectionUtil.isNotEmpty(keys)) {
+            //d表示匹配到的是一个数字
+            String regx = "\\d_" + skuId;
+            for (String key : keys) {
+                //key 6_4
+                if (Pattern.matches(regx, key)) {
+                    String json = hashOps.get(key);
+                    SeckillSkuRedisTo skuRedisTo = JSON.parseObject(json, SeckillSkuRedisTo.class);
+                    //随机码处理 当前时间在秒杀时间范围内 把随机码传给前端页面
+                    long current = new Date().getTime();
+                    if (current >= skuRedisTo.getStartTime() && current <= skuRedisTo.getEndTime()) {
+
+                    } else {
+                        skuRedisTo.setRandomCode(null);
+                    }
+                    return skuRedisTo;
+                }
+            }
+        }
+
         return null;
     }
+
 
     @Override
     public String kill(String killId, String key, Integer num) {

@@ -1,9 +1,13 @@
 package com.atguigu.gulimall.product.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.TypeReference;
+import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.product.entity.SkuImagesEntity;
 import com.atguigu.gulimall.product.entity.SpuInfoDescEntity;
+import com.atguigu.gulimall.product.feign.SeckillFeignService;
 import com.atguigu.gulimall.product.service.*;
+import com.atguigu.gulimall.product.vo.SeckillInfoVo;
 import com.atguigu.gulimall.product.vo.itemVo.SkuItemSaleAttrVo;
 import com.atguigu.gulimall.product.vo.itemVo.SkuItemVo;
 import com.atguigu.gulimall.product.vo.itemVo.SpuItemAttrGroupVo;
@@ -46,6 +50,9 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
     @Autowired
     ThreadPoolExecutor executor;
+
+    @Autowired
+    SeckillFeignService seckillFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -187,9 +194,19 @@ public SkuItemVo item(Long skuId) throws ExecutionException, InterruptedExceptio
         List<SpuItemAttrGroupVo> attrGroupVos = attrGroupService.getAttrGroupWithAttrsBySpuId(res.getSpuId(), res.getCatelogId());
         skuItemVo.setGroupAttrs(attrGroupVos);
     }, executor);
+        //6、查询当前sku是否参与秒杀活动
+    CompletableFuture<Void> secKillFuture = CompletableFuture.runAsync(() -> {
+        R skuSeckillInfo = seckillFeignService.getSkuSeckillInfo(skuId);
+        if (skuSeckillInfo.getCode() == 0) {
+            SeckillInfoVo seckillInfoVo = skuSeckillInfo.getData(new TypeReference<SeckillInfoVo>() {
+            });
+            skuItemVo.setSeckillInfoVo(seckillInfoVo);
+        }
+    }, executor);
 
-        //等待所有任务都完成再返回
-    CompletableFuture.allOf(imageFuture,saleAttrFuture,descFuture,baseAttrFuture).get();
+
+    //等待所有任务都完成再返回
+    CompletableFuture.allOf(imageFuture,saleAttrFuture,descFuture,baseAttrFuture,secKillFuture).get();
 
     return skuItemVo;
 }
