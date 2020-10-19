@@ -55,7 +55,7 @@ public class OrderItemEntity implements Serializable {
 	/**
 	 * 商品分类id
 	 */
-	private Long catagoryId;
+	private Long categoryId;
 	/**
 	 * 商品sku编号
 	 */

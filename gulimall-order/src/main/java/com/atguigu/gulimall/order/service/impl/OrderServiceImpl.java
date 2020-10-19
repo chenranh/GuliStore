@@ -483,7 +483,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         itemEntity.setSpuId(spuInfo.getId());
         itemEntity.setSpuBrand(spuInfo.getBrandId().toString());
         itemEntity.setSpuName(spuInfo.getSpuName());
-        itemEntity.setCatagoryId(spuInfo.getCatalogId());
+        itemEntity.setCategoryId(spuInfo.getCatelogId());
         // 3.商品的sku信息
         itemEntity.setSkuId(cartItem.getSkuId());
         itemEntity.setSkuName(cartItem.getTitle());

@@ -21,6 +21,15 @@ spring:
             - RewritePath=/api/(?<segment>.*),/$\{segment}
 
 
+        - id: coupon_route
+          uri: lb://gulimall-coupon
+          predicates:
+            - Path=/api/coupon/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}
+
+
+
         - id: third_party_route
           uri: lb://gulimall-third-party
           predicates:
@@ -79,8 +88,14 @@ spring:
           uri: lb://gulimall-order
           predicates:
             - Host=order.gulimall.com
-            -
+
         - id: gulimall_member_route
-            uri: lb://gulimall-member
-            predicates:
-              - Host=merber.gulimall.com
+          uri: lb://gulimall-member
+          predicates:
+            - Host=merber.gulimall.com
+
+        - id: gulimall_seckill_route
+          uri: lb://gulimall-member
+          predicates:
+            - Host=seckill.gulimall.com
+
