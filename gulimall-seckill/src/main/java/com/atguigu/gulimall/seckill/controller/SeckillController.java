@@ -57,6 +57,7 @@ public class SeckillController {
 	 * @param model
 	 * @return
 	 */
+	@GetMapping("/kill")
 	public String secKill(@RequestParam("killId") String killId, @RequestParam("key") String key, @RequestParam("num") Integer num, Model model){
 		//只要秒杀成功返回订单号
 		String orderSn = seckillService.kill(killId,key,num);

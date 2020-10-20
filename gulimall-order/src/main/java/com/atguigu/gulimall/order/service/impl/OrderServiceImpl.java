@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.enume.OrderStatusEnum;
 import com.atguigu.common.to.mq.OrderTo;
+import com.atguigu.common.to.mq.SecKillOrderTo;
 import com.atguigu.common.utils.R;
 import com.atguigu.common.vo.MemberRsepVo;
 import com.atguigu.gulimall.order.constant.OrderConstant;
@@ -278,6 +279,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         }
     }
 
+    /**
+     * 支付宝支付
+     *
+     * @param orderSn
+     * @return
+     */
     @Override
     public PayVo getOrderPay(String orderSn) {
         PayVo payVo = new PayVo();
@@ -300,7 +307,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         IPage<OrderEntity> page = this.page(
                 new Query<OrderEntity>().getPage(params),
                 // 查询这个用户的最新订单 [降序排序]
-                new QueryWrapper<OrderEntity>().eq("member_id",rsepVo.getId()).orderByDesc("id")
+                new QueryWrapper<OrderEntity>().eq("member_id", rsepVo.getId()).orderByDesc("id")
         );
         List<OrderEntity> order_sn = page.getRecords().stream().map(order -> {
             // 查询这个订单关联的所有订单项
@@ -327,12 +334,49 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         paymentInfoService.save(infoEntity);
 
         // 2.修改订单状态信息
-        if(vo.getTrade_status().equals("TRADE_SUCCESS") || vo.getTrade_status().equals("TRADE_FINISHED")){
+        if (vo.getTrade_status().equals("TRADE_SUCCESS") || vo.getTrade_status().equals("TRADE_FINISHED")) {
             // 支付成功
             String orderSn = vo.getOut_trade_no();
             this.baseMapper.updateOrderStatus(orderSn, OrderStatusEnum.PAYED.getCode());
         }
         return "success";
+    }
+
+    /**
+     * 创建秒杀订单
+     *
+     * @param secKillOrder
+     */
+    @Override
+    public void createSeckillOrder(SecKillOrderTo secKillOrder) {
+        // TODO: 2020-10-20 保存订单信息 还有很多字段没设置
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setOrderSn(secKillOrder.getOrderSn());
+        orderEntity.setMemberId(secKillOrder.getMemberId());
+        orderEntity.setStatus(OrderStatusEnum.CREATE_NEW.getCode());
+        BigDecimal price = secKillOrder.getSeckillPrice().multiply(new BigDecimal("" + secKillOrder.getNum()));
+        orderEntity.setPayAmount(price);
+        this.save(orderEntity);
+        // TODO: 2020-10-20 保存订单项信息
+        OrderItemEntity itemEntity = new OrderItemEntity();
+        itemEntity.setOrderSn(secKillOrder.getOrderSn());
+        itemEntity.setRealAmount(price);
+        itemEntity.setOrderId(orderEntity.getId());
+        itemEntity.setSkuQuantity(secKillOrder.getNum());
+        R info = productFeignService.getSkuInfoBySkuId(secKillOrder.getSkuId());
+        SpuInfoVo spuInfo = info.getData(new TypeReference<SpuInfoVo>() {
+        });
+        itemEntity.setSpuId(spuInfo.getId());
+        itemEntity.setSpuBrand(spuInfo.getBrandId().toString());
+        itemEntity.setSpuName(spuInfo.getSpuName());
+        itemEntity.setCategoryId(spuInfo.getCatelogId());
+        itemEntity.setGiftGrowth(secKillOrder.getSeckillPrice().multiply(new BigDecimal(secKillOrder.getNum())).intValue());
+        itemEntity.setGiftIntegration(secKillOrder.getSeckillPrice().multiply(new BigDecimal(secKillOrder.getNum())).intValue());
+        itemEntity.setPromotionAmount(new BigDecimal("0.0"));
+        itemEntity.setCouponAmount(new BigDecimal("0.0"));
+        itemEntity.setIntegrationAmount(new BigDecimal("0.0"));
+        orderItemService.save(itemEntity);
+
     }
 
     /**

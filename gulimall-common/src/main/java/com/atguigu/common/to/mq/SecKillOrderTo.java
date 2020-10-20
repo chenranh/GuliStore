@@ -29,7 +29,7 @@ public class SecKillOrderTo {
 	 */
 	private BigDecimal seckillPrice;
 	/**
-	 * 秒杀总量
+	 * 购买数量
 	 */
 	private Integer num;
 

@@ -198,21 +198,24 @@ public class SeckillServiceImpl implements SeckillService {
                         if (aBoolean) {
                             //3.获取该商品的信号量
                             RSemaphore semaphore = redissonClient.getSemaphore(SKUSTOCK_SEMAPHONE + randomCode);
+                            //快速尝试能否拿得到信号量
+                            boolean acquire = semaphore.tryAcquire(num);
 
-                            try {
-                                //快速尝试能否拿得到信号量
-                                boolean acquire = semaphore.tryAcquire(num, 100, TimeUnit.MILLISECONDS);
+                            if (acquire) {
                                 //秒杀成功
                                 //快速下单 timeId作为订单号。发MQ消息
                                 String timeId = IdWorker.getTimeId();
                                 SecKillOrderTo orderTo = new SecKillOrderTo();
                                 orderTo.setOrderSn(timeId);
-                                rabbitTemplate.convertAndSend("order-event-exchange", "order.seckill.order");
-
+                                orderTo.setMemberId(rsepVo.getId());
+                                orderTo.setNum(num);
+                                orderTo.setPromotionSessionId(redis.getPromotionSessionId());
+                                orderTo.setSkuId(redis.getSkuId());
+                                orderTo.setSeckillPrice(redis.getSeckillPrice());
+                                rabbitTemplate.convertAndSend("order-event-exchange", "order.seckill.order", orderTo);
                                 return timeId;
-                            } catch (InterruptedException e) {
-                                return null;
                             }
+                            return null;
 
                         } else {
                             //说明已经买过
@@ -220,13 +223,8 @@ public class SeckillServiceImpl implements SeckillService {
                         }
                     }
                 }
-
-
             }
-
-
         }
-
         return null;
     }
 
