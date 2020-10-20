@@ -158,7 +158,8 @@ public class SeckillServiceImpl implements SeckillService {
 
     /**
      * 点击秒杀流程
-     *
+     * todo 上架秒杀商品的时候每一个数据都有过期时间
+     * todo 上架的时候应该把库存服务里的商品库存锁定住，秒杀结束后如果redis中还有剩下的再给库存加回去。这里简化了收货地址等信息
      * @param killId
      * @param key
      * @param num
