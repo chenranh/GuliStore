@@ -21,6 +21,13 @@
 
     <dependencies>
 
+        <!--        MQ-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
+
         <!--        使用redissson作为分布式锁，分布式对象等功能框架-->
         <dependency>
             <groupId>org.redisson</groupId>

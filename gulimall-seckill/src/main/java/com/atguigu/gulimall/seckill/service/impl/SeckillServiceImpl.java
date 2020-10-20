@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.atguigu.common.to.mq.SecKillOrderTo;
 import com.atguigu.common.utils.R;
 import com.atguigu.common.vo.MemberRsepVo;
 import com.atguigu.gulimall.seckill.feign.CouponFeignService;
@@ -19,6 +20,7 @@ import jodd.time.TimeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -46,6 +48,9 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Autowired
     private RedissonClient redissonClient;
+
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
@@ -200,6 +205,10 @@ public class SeckillServiceImpl implements SeckillService {
                                 //秒杀成功
                                 //快速下单 timeId作为订单号。发MQ消息
                                 String timeId = IdWorker.getTimeId();
+                                SecKillOrderTo orderTo = new SecKillOrderTo();
+                                orderTo.setOrderSn(timeId);
+                                rabbitTemplate.convertAndSend("order-event-exchange", "order.seckill.order");
+
                                 return timeId;
                             } catch (InterruptedException e) {
                                 return null;
