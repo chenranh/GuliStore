@@ -49,10 +49,17 @@ public class SeckillController {
 	}
 
 
-	@GetMapping("/kill")
+	/**
+	 *
+	 * @param killId  7_1
+	 * @param key  商品随机码
+	 * @param num  商品秒杀数量
+	 * @param model
+	 * @return
+	 */
 	public String secKill(@RequestParam("killId") String killId, @RequestParam("key") String key, @RequestParam("num") Integer num, Model model){
+		//只要秒杀成功返回订单号
 		String orderSn = seckillService.kill(killId,key,num);
-		// 1.判断是否登录
 		model.addAttribute("orderSn", orderSn);
 		return "success";
 	}

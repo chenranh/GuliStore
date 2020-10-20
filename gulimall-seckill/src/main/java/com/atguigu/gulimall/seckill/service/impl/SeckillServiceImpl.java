@@ -5,13 +5,18 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.utils.R;
+import com.atguigu.common.vo.MemberRsepVo;
 import com.atguigu.gulimall.seckill.feign.CouponFeignService;
 import com.atguigu.gulimall.seckill.feign.ProductFeignService;
+import com.atguigu.gulimall.seckill.interceptor.LoginUserInterceptor;
 import com.atguigu.gulimall.seckill.service.SeckillService;
 import com.atguigu.gulimall.seckill.to.SeckillSkuRedisTo;
 import com.atguigu.gulimall.seckill.vo.SeckillSessionsWithSkus;
 import com.atguigu.gulimall.seckill.vo.SeckillSkuRelationEntity;
 import com.atguigu.gulimall.seckill.vo.SkuInfoVo;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import jodd.time.TimeUtil;
+import org.apache.commons.lang.StringUtils;
 import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -112,6 +118,7 @@ public class SeckillServiceImpl implements SeckillService {
     /**
      * 获取某个商品的秒杀信息
      * 单个sku商品显示秒杀信息
+     *
      * @param skuId
      * @return
      */
@@ -144,8 +151,73 @@ public class SeckillServiceImpl implements SeckillService {
     }
 
 
+    /**
+     * 点击秒杀流程
+     *
+     * @param killId
+     * @param key
+     * @param num
+     * @return
+     */
     @Override
     public String kill(String killId, String key, Integer num) {
+
+        MemberRsepVo rsepVo = LoginUserInterceptor.threadLocal.get();
+
+        //1.获取当前秒杀商品的详细信息
+        BoundHashOperations<String, String, String> hashOps = stringRedisTemplate.boundHashOps(SKUKILL_CACHE_PREFIX);
+        String json = hashOps.get(killId);
+        if (StringUtils.isEmpty(json)) {
+            return null;
+        } else {
+            SeckillSkuRedisTo redis = JSON.parseObject(json, SeckillSkuRedisTo.class);
+            //2.校验合法性
+            Long startTime = redis.getStartTime();
+            Long endTime = redis.getEndTime();
+            long time = new Date().getTime();
+            long ttl = endTime - startTime;
+            //2.1 校验时间合法性  redis中应该给秒杀活动过期时间
+            if (time >= startTime && time <= endTime) {
+                //2.2检验随机码和商品id
+                String randomCode = redis.getRandomCode();
+                String skuId = redis.getPromotionSessionId() + "_" + redis.getSkuId();
+                if (randomCode.equals(key) && killId.equals(skuId)) {
+                    //2.3验证购物的数量是否合理
+                    if (num <= redis.getSeckillLimit()) {
+                        //2.4验证这个人是否已经购买过 幂等性；如果秒杀成功，就去占位。redis保存key为userId_SessionId_key
+                        String redisKey = rsepVo.getId() + skuId;
+                        //setIfAbsent() redis不存在的时候占位
+                        //自动过期  活动时间结束 占位删除
+                        Boolean aBoolean = stringRedisTemplate.opsForValue().setIfAbsent(redisKey, num.toString(), ttl, TimeUnit.MILLISECONDS);
+                        //占位成功说明这个人从来没有买过
+                        if (aBoolean) {
+                            //3.获取该商品的信号量
+                            RSemaphore semaphore = redissonClient.getSemaphore(SKUSTOCK_SEMAPHONE + randomCode);
+
+                            try {
+                                //快速尝试能否拿得到信号量
+                                boolean acquire = semaphore.tryAcquire(num, 100, TimeUnit.MILLISECONDS);
+                                //秒杀成功
+                                //快速下单 timeId作为订单号。发MQ消息
+                                String timeId = IdWorker.getTimeId();
+                                return timeId;
+                            } catch (InterruptedException e) {
+                                return null;
+                            }
+
+                        } else {
+                            //说明已经买过
+                            return null;
+                        }
+                    }
+                }
+
+
+            }
+
+
+        }
+
         return null;
     }
 
