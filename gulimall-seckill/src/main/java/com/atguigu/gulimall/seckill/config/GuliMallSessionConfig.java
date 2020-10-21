@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.seckill.config;
 
+import org.redisson.spring.session.config.EnableRedissonHttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
@@ -11,6 +12,7 @@ import org.springframework.session.web.http.DefaultCookieSerializer;
  * <p>Title: GlMallSessionConfig</p>
  * Description：设置Session作用域、自定义cookie序列化机制
  */
+@EnableRedissonHttpSession
 @Configuration
 public class GuliMallSessionConfig {
 

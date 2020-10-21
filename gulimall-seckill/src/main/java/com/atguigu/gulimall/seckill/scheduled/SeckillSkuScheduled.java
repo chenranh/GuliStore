@@ -35,7 +35,7 @@ public class SeckillSkuScheduled {
     private final String UPLOAD_LOCK = "seckill:upload:lock";
 
     // TODO: 2020-10-16 上架幂等性 上架了就不能再上架了
-    @Scheduled(cron = "* * * * * ?")
+    @Scheduled(cron = "0 0 0 * * ? ")
     public void uploadSeckillSkuLatest3Days() {
         System.out.println("上架了商品");
 

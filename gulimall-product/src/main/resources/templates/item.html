@@ -1340,7 +1340,7 @@
     $("#secKillA").click(function () {
         var isLogin = [[${session.loginUser != null}]]
         if (isLogin) {
-            var killId = $(this).attr("sessionid") + "-" + $(this).attr("skuid");
+            var killId = $(this).attr("sessionid") + "_" + $(this).attr("skuid");
             var num = $("#numInput").val();
             location.href = "http://seckill.gulimall.com/kill?killId=" + killId + "&key=" + $(this).attr("code") + "&num=" + num;
         } else {

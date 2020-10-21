@@ -13,8 +13,12 @@
     <description>公共依赖</description>
     <dependencies>
 
-
-
+<!--熔断降级限流-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+            <version>2.1.0.RELEASE</version>
+        </dependency>
 
         <dependency>
             <groupId>cn.hutool</groupId>
