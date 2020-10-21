@@ -27,7 +27,7 @@
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
-<!--        senteal的actuator-->
+<!--        senteal的actuator统计审计信息-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>

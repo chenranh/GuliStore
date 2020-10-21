@@ -20,7 +20,7 @@ import java.util.Date;
 @Configuration
 public class MyRabbitConfig {
 
-    //	@Autowired
+    //	@Autowired 因为循环依赖的问题，不用自动注入
     private RabbitTemplate rabbitTemplate;
 
     @Primary

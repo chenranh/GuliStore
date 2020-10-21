@@ -22,6 +22,12 @@
 
     <dependencies>
 
+        <!--        senteal的actuator统计审计信息-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- 整合Spring-seesion  -->
         <dependency>
             <groupId>org.springframework.session</groupId>

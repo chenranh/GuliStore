@@ -20,7 +20,17 @@
     </properties>
 
     <dependencies>
-<!--对象存储-->
+
+        <!--        senteal的actuator统计审计信息-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+
+
+
+        <!--对象存储-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alicloud-oss</artifactId>
@@ -71,6 +81,10 @@
                     <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-web-servlet</artifactId>
         </dependency>
     </dependencies>
 
