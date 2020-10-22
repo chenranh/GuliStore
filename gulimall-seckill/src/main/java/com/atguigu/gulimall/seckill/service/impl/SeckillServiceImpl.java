@@ -88,20 +88,25 @@ public class SeckillServiceImpl implements SeckillService {
         }
     }
 
+    public List<SeckillSkuRedisTo> blockHandler(BlockException e) {
+        log.error("getCurrentSeckillSkusResource被限流了");
+        return null;
+    }
     /**
      * 返回当前时间参与秒杀的商品
      * 前端首页页面显示
-     *
+     * blockHandler 表示被限流了调用哪个方法，函数会在原方法被限流降级系统保护的时候调用
+     * fallback函数会针对所有类型的异常
      * @return
      */
-    @SentinelResource(value = "getCurrentSeckillSkus")
+    @SentinelResource(value = "getCurrentSeckillSkusResource", blockHandler = "blockHander")
     @Override
     public List<SeckillSkuRedisTo> getCurrentSeckillSkus() {
         //1.确定当前时间属于哪个秒杀场次
         long time = new Date().getTime();
 
         //try catch 用于sentinel自定义保护资源测试
-        try( Entry entry = SphU.entry("seckillSkus")) {
+        try (Entry entry = SphU.entry("seckillSkus")) {
             //在redis中查到  seckill:sessions:开头的所有的key
             Set<String> keys = stringRedisTemplate.keys(SESSION_CACHE_PREFIX + "*");
             for (String key : keys) {
@@ -130,8 +135,6 @@ public class SeckillServiceImpl implements SeckillService {
             log.error("资源被限流", e.getMessage());
             e.printStackTrace();
         }
-
-
 
 
         return null;
@@ -177,6 +180,7 @@ public class SeckillServiceImpl implements SeckillService {
      * 点击秒杀流程
      * todo 上架秒杀商品的时候每一个数据都有过期时间
      * todo 上架的时候应该把库存服务里的商品库存锁定住，秒杀结束后如果redis中还有剩下的再给库存加回去。这里简化了收货地址等信息
+     *
      * @param killId
      * @param key
      * @param num

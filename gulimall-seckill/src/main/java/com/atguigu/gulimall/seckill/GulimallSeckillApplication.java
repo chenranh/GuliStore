@@ -31,7 +31,13 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  *      业务逻辑
  *   }catch（BlockException e）{}
  *
- *     2）基于注解   @SentinelResource(value = "getCurrentSeckillSkus")
+ *     2）基于注解   @SentinelResource(value = "getCurrentSeckillSkusResource", blockHandler = "blockHander")
+ *           blockHandler 表示被限流了调用哪个方法，函数会在原方法被限流降级系统保护的时候调用
+ *           fallback函数会针对所有类型的异常
+ *
+ *      无论是1，2方式一定要配置被限流以后的默认返回
+ *      url请求可以设置统一返回 SentinelConfig
+ *
  *
  *
  *
