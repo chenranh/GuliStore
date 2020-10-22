@@ -9,8 +9,3 @@ spring:
         probability: 1 #设置抽样采集率为100%,默认0.1即10%
 
 
-gulimall:
-  thread:
-    core-size: 20
-    max-size: 200
-    keep-alive-time: 10
