@@ -2,10 +2,10 @@ package com.atguigu.gulimall.seckill.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
-import com.alibaba.csp.sentinel.Entry;
-import com.alibaba.csp.sentinel.SphU;
-import com.alibaba.csp.sentinel.annotation.SentinelResource;
-import com.alibaba.csp.sentinel.slots.block.BlockException;
+//import com.alibaba.csp.sentinel.Entry;
+//import com.alibaba.csp.sentinel.SphU;
+//import com.alibaba.csp.sentinel.annotation.SentinelResource;
+//import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.to.mq.SecKillOrderTo;
@@ -88,10 +88,10 @@ public class SeckillServiceImpl implements SeckillService {
         }
     }
 
-    public List<SeckillSkuRedisTo> blockHandler(BlockException e) {
-        log.error("getCurrentSeckillSkusResource被限流了");
-        return null;
-    }
+//    public List<SeckillSkuRedisTo> blockHandler(BlockException e) {
+//        log.error("getCurrentSeckillSkusResource被限流了");
+//        return null;
+//    }
     /**
      * 返回当前时间参与秒杀的商品
      * 前端首页页面显示
@@ -99,14 +99,14 @@ public class SeckillServiceImpl implements SeckillService {
      * fallback函数会针对所有类型的异常
      * @return
      */
-    @SentinelResource(value = "getCurrentSeckillSkusResource", blockHandler = "blockHander")
+//    @SentinelResource(value = "getCurrentSeckillSkusResource", blockHandler = "blockHander")
     @Override
     public List<SeckillSkuRedisTo> getCurrentSeckillSkus() {
         //1.确定当前时间属于哪个秒杀场次
         long time = new Date().getTime();
 
         //try catch 用于sentinel自定义保护资源测试
-        try (Entry entry = SphU.entry("seckillSkus")) {
+//        try (Entry entry = SphU.entry("seckillSkus")) {
             //在redis中查到  seckill:sessions:开头的所有的key
             Set<String> keys = stringRedisTemplate.keys(SESSION_CACHE_PREFIX + "*");
             for (String key : keys) {
@@ -131,10 +131,10 @@ public class SeckillServiceImpl implements SeckillService {
                 }
 
             }
-        } catch (BlockException e) {
-            log.error("资源被限流", e.getMessage());
-            e.printStackTrace();
-        }
+//        } catch (BlockException e) {
+//            log.error("资源被限流", e.getMessage());
+//            e.printStackTrace();
+//        }
 
 
         return null;

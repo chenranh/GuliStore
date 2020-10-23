@@ -8,6 +8,7 @@
     <name>gulimall</name>
     <description>聚合服务</description>
     <packaging>pom</packaging>
+<!--    聚合服务后，在maven里gulimall进行clean下面全部都会clean-->
     <modules>
         <module>gulimall-coupon</module>
         <module>gulimall-member</module>
