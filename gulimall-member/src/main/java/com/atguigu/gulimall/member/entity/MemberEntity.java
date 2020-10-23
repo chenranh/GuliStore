@@ -2,17 +2,17 @@ package com.atguigu.gulimall.member.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
- * ??Ա
+ * 会员
  *
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:46:43
+ * @author firenay
+ * @email 1046762075@qq.com
+ * @date 2020-05-30 00:49:16
  */
 @Data
 @TableName("ums_member")
@@ -20,86 +20,82 @@ public class MemberEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * 会员等级id
 	 */
 	private Long levelId;
 	/**
-	 * $column.comments
+	 * 用户名
 	 */
 	private String username;
 	/**
-	 * $column.comments
+	 * 密码
 	 */
 	private String password;
 	/**
-	 * $column.comments
+	 * 昵称
 	 */
 	private String nickname;
 	/**
-	 * $column.comments
+	 * 手机号码
 	 */
 	private String mobile;
 	/**
-	 * $column.comments
+	 * 邮箱
 	 */
 	private String email;
 	/**
-	 * $column.comments
+	 * 头像
 	 */
 	private String header;
 	/**
-	 * $column.comments
+	 * 性别
 	 */
 	private Integer gender;
 	/**
-	 * $column.comments
+	 * 生日
 	 */
 	private Date birth;
 	/**
-	 * $column.comments
+	 * 所在城市
 	 */
 	private String city;
 	/**
-	 * $column.comments
+	 * 职业
 	 */
 	private String job;
 	/**
-	 * $column.comments
+	 * 个性签名
 	 */
 	private String sign;
 	/**
-	 * $column.comments
+	 * 用户来源
 	 */
 	private Integer sourceType;
 	/**
-	 * $column.comments
+	 * 积分
 	 */
 	private Integer integration;
 	/**
-	 * $column.comments
+	 * 成长值
 	 */
 	private Integer growth;
 	/**
-	 * $column.comments
+	 * 启用状态
 	 */
 	private Integer status;
 	/**
-	 * $column.comments
+	 * 注册时间
 	 */
 	private Date createTime;
 
-	/**
-	 * 以下三个地段是微博账号需要的字段
-	 */
 	private String socialUid;
 
 	private String accessToken;
 
 	private Long expiresIn;
-
 }

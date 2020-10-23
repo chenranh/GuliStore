@@ -2,17 +2,17 @@ package com.atguigu.gulimall.member.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
- * ??Ա?ղص???Ʒ
- * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:46:43
+ * 会员收藏的商品
+ *
+ * @author firenay
+ * @email 1046762075@qq.com
+ * @date 2020-05-30 00:49:16
  */
 @Data
 @TableName("ums_member_collect_spu")
@@ -20,28 +20,28 @@ public class MemberCollectSpuEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * 会员id
 	 */
 	private Long memberId;
 	/**
-	 * $column.comments
+	 * spu_id
 	 */
 	private Long spuId;
 	/**
-	 * $column.comments
+	 * spu_name
 	 */
 	private String spuName;
 	/**
-	 * $column.comments
+	 * spu_img
 	 */
 	private String spuImg;
 	/**
-	 * $column.comments
+	 * create_time
 	 */
 	private Date createTime;
 

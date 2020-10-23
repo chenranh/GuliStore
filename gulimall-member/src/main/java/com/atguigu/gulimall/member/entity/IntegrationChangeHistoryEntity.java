@@ -2,17 +2,17 @@ package com.atguigu.gulimall.member.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
- * ???ֱ仯??ʷ??¼
- * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:46:43
+ * 积分变化历史记录
+ *
+ * @author firenay
+ * @email 1046762075@qq.com
+ * @date 2020-05-30 00:49:16
  */
 @Data
 @TableName("ums_integration_change_history")
@@ -20,28 +20,28 @@ public class IntegrationChangeHistoryEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * member_id
 	 */
 	private Long memberId;
 	/**
-	 * $column.comments
+	 * create_time
 	 */
 	private Date createTime;
 	/**
-	 * $column.comments
+	 * 变化的值
 	 */
 	private Integer changeCount;
 	/**
-	 * $column.comments
+	 * 备注
 	 */
 	private String note;
 	/**
-	 * $column.comments
+	 * 来源[0->购物；1->管理员修改;2->活动]
 	 */
 	private Integer sourceTyoe;
 

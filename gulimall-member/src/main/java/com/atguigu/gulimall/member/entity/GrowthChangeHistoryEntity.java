@@ -2,17 +2,17 @@ package com.atguigu.gulimall.member.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
- * ?ɳ?ֵ?仯??ʷ??¼
- * 
- * @author yuke
- * @email 627617510@gmail.com
- * @date 2020-08-23 17:46:43
+ * 成长值变化历史记录
+ *
+ * @author firenay
+ * @email 1046762075@qq.com
+ * @date 2020-05-30 00:49:16
  */
 @Data
 @TableName("ums_growth_change_history")
@@ -20,28 +20,28 @@ public class GrowthChangeHistoryEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * $column.comments
+	 * id
 	 */
 	@TableId
 	private Long id;
 	/**
-	 * $column.comments
+	 * member_id
 	 */
 	private Long memberId;
 	/**
-	 * $column.comments
+	 * create_time
 	 */
 	private Date createTime;
 	/**
-	 * $column.comments
+	 * 改变的值（正负计数）
 	 */
 	private Integer changeCount;
 	/**
-	 * $column.comments
+	 * 备注
 	 */
 	private String note;
 	/**
-	 * $column.comments
+	 * 积分来源[0-购物，1-管理员修改]
 	 */
 	private Integer sourceType;
 
