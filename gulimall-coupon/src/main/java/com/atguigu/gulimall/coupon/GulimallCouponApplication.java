@@ -26,23 +26,25 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * 2、细节
  *  1）、命名空间：配置隔离；
  *      默认：public(保留空间)；默认新增的所有配置都在public空间。
- *      1、开发，测试，生产：利用命名空间来做环境隔离。
+ *      1、开发，测试，生产：利用命名空间来做环境隔离。 在命名空间里创建文件的配置，每个命名空间对应一个namespace
  *         注意：在bootstrap.properties；配置上，需要使用哪个命名空间下的配置，
  *         spring.cloud.nacos.config.namespace=9de62e44-cd2a-4a82-bf5c-95878bd5e871
- *      2、每一个微服务之间互相隔离配置，每一个微服务都创建自己的命名空间，只加载自己命名空间下的所有配置
+ *      2、每一个微服务（coupon、member等）之间互相隔离配置，每一个微服务都创建自己的命名空间，只加载自己命名空间下的所有配置
  *
- *  2）、配置集：所有的配置的集合
+ *  2）、配置集：所有的配置的集合（知道就行）
  *
  *  3）、配置集ID：类似文件名。
- *      Data ID：类似文件名
+ *      Data ID：类似配置文件名
  *
- *  4）、配置分组：
+ *  4）、配置分组（重要）：
+ *      命名空间下的分组 使用配置分组区分环境，dev，test，prod
  *      默认所有的配置集都属于：DEFAULT_GROUP；
  *      1111，618，1212
  *
  * 项目中的使用：每个微服务创建自己的命名空间，使用配置分组区分环境，dev，test，prod
  *
  * 3、同时加载多个配置集
+ * 所有的配置不全部都写在一个配置文件中，区分数据源配置文件，mybatis配置文件
  * 1)、微服务任何配置信息，任何配置文件都可以放在配置中心中
  * 2）、只需要在bootstrap.properties说明加载配置中心中哪些配置文件即可
  * 3）、@Value，@ConfigurationProperties。。。
